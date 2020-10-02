@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Image, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView } from 'react-native'
 import styles from './styles';
+import { firebase } from '../../src/firebase/config'
 
 export default function RegistrationScreen({navigation}) {
     const [fullName, setFullName] = useState('')
@@ -13,6 +14,32 @@ export default function RegistrationScreen({navigation}) {
     }
 
     const onRegisterPress = () => {
+        if (password !== confirmPassword) {
+            alert("Passwords don't match.")
+            return
+        }
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then((response) => {
+                const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                const uid = response.user.uid
+                const data = {
+                    id: uid,
+                    email,
+                    fullName,
+                    createdAt: timestamp,
+                };
+                const usersRef = firebase.firestore().collection('users')
+                usersRef.doc(uid).set(data)
+                    .then(() => {
+                        navigation.navigate('Home')
+                    })
+                    .catch((error) => {
+                        alert(error)
+                    });
+            })
+            .catch((error) => {
+                alert(error)
+        });
     }
 
     return (
