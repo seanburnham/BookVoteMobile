@@ -11,12 +11,15 @@ import mainContext from './src/mainContext';
 import { firebase } from './src/firebase/config'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { LoginScreen, HomeScreen, RegistrationScreen } from './screens'
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { LoginScreen, HomeScreen, RegistrationScreen, ProfileScreen } from './screens'
 import {decode, encode} from 'base-64'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 if (!global.btoa) {  global.btoa = encode }
 if (!global.atob) { global.atob = decode }
 
 const Stack = createStackNavigator();
+const Tab = createMaterialBottomTabNavigator()
 
 export default function App() {
 
@@ -64,7 +67,8 @@ export default function App() {
   const doSignup = async (email, password) => {
     setIsLoading(true);
 
-    firebase.auth().createUserWithEmailAndPassword(email, password)
+    firebase.auth()
+      .createUserWithEmailAndPassword(email, password)
       .then((response) => {
           const timestamp = firebase.firestore.FieldValue.serverTimestamp();
           const uid = response.user.uid
