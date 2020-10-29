@@ -6,7 +6,7 @@ import mainContext from '../../src/mainContext'; //The context!!
 
 export default function Profile({navigation}) {
 
-    const { currentUser } = Firebase.auth();
+    const { currentUser } = firebase.auth();
     const { signOutUser } = useContext(mainContext); 
 
     return (

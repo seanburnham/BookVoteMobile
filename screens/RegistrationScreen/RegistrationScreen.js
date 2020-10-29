@@ -20,7 +20,7 @@ export default function RegistrationScreen({navigation}) {
             alert("Passwords don't match.")
             return
         }
-        handleSignup(email, password);
+        handleSignup(fullName, email, password);
     }
 
     return (

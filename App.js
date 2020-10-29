@@ -11,15 +11,9 @@ import mainContext from './src/mainContext';
 import { firebase } from './src/firebase/config'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { LoginScreen, HomeScreen, RegistrationScreen, ProfileScreen } from './screens'
-import {decode, encode} from 'base-64'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-if (!global.btoa) {  global.btoa = encode }
-if (!global.atob) { global.atob = decode }
+import { LoginScreen, RegistrationScreen, TabNavigation } from './screens'
 
 const Stack = createStackNavigator();
-const Tab = createMaterialBottomTabNavigator()
 
 export default function App() {
 
@@ -29,11 +23,12 @@ export default function App() {
 
   //on startup let's check if we are alredy authenticated, adjusting the previous variable accordingly
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
+    const authListener = firebase.auth().onAuthStateChanged((user) => {
       setUserLogged(user ? true : false);
       setIsLoading(false);
       setUserProfile(user);
     });
+    return authListener;
   }, []); //<--- this means that useEffet will only run once, and not on every update
 
   const doLogin = async (email, password) => {
@@ -64,7 +59,7 @@ export default function App() {
     setIsLoading(false);
   };
 
-  const doSignup = async (email, password) => {
+  const doSignup = async (fullName, email, password) => {
     setIsLoading(true);
 
     firebase.auth()
@@ -105,8 +100,8 @@ export default function App() {
       handleLogin: (email, password) => {
         doLogin(email, password);
       },
-      handleSignup: (email, password) => {
-        doSignup(email, password);
+      handleSignup: (fullName, email, password) => {
+        doSignup(fullName, email, password);
       },
     }),
     []
@@ -137,33 +132,7 @@ export default function App() {
               </>
             ) : (
               <>
-                <Tab.Navigator
-                  initialRouteName="Home"
-                  activeColor="#fb5b5a"
-                  inactiveColor="white"
-                  barStyle={{ backgroundColor: '#465881' }}
-                >
-                  <Tab.Screen 
-                      name='Home' 
-                      component={HomeScreen} 
-                      options={{
-                          tabBarLabel: 'Home',
-                          tabBarIcon: ({ color }) => (
-                            <MaterialCommunityIcons name="home" color={color} size={26} />
-                          ),
-                        }}
-                  />
-                  <Tab.Screen 
-                      name='Profile' 
-                      component={ProfileScreen} 
-                      options={{
-                          tabBarLabel: 'Profile',
-                          tabBarIcon: ({ color }) => (
-                            <MaterialCommunityIcons name="account" color={color} size={26} />
-                          ),
-                        }}
-                  />
-                </Tab.Navigator>
+                <Stack.Screen name='Home' component={TabNavigation} options={{ headerShown: false }}/>
               </>
             )}
           </Stack.Navigator>
