@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Image, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView } from 'react-native'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
+import mainContext from '../../src/mainContext';
 
 export default function RegistrationScreen({navigation}) {
+    const { handleSignup } = useContext(mainContext);
     const [fullName, setFullName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -18,28 +20,7 @@ export default function RegistrationScreen({navigation}) {
             alert("Passwords don't match.")
             return
         }
-        firebase.auth().createUserWithEmailAndPassword(email, password)
-            .then((response) => {
-                const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-                const uid = response.user.uid
-                const data = {
-                    id: uid,
-                    email,
-                    fullName,
-                    createdAt: timestamp,
-                };
-                const usersRef = firebase.firestore().collection('users')
-                usersRef.doc(uid).set(data)
-                    .then(() => {
-                        navigation.navigate('Home')
-                    })
-                    .catch((error) => {
-                        alert(error)
-                    });
-            })
-            .catch((error) => {
-                alert(error)
-        });
+        handleSignup(email, password);
     }
 
     return (
