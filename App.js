@@ -133,7 +133,33 @@ export default function App() {
               </>
             ) : (
               <>
-                <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+                <Tab.Navigator
+                  initialRouteName="Home"
+                  activeColor="#fb5b5a"
+                  inactiveColor="white"
+                  barStyle={{ backgroundColor: '#465881' }}
+                >
+                  <Tab.Screen 
+                      name='Home' 
+                      component={HomeScreen} 
+                      options={{
+                          tabBarLabel: 'Home',
+                          tabBarIcon: ({ color }) => (
+                            <MaterialCommunityIcons name="home" color={color} size={26} />
+                          ),
+                        }}
+                  />
+                  <Tab.Screen 
+                      name='Profile' 
+                      component={ProfileScreen} 
+                      options={{
+                          tabBarLabel: 'Profile',
+                          tabBarIcon: ({ color }) => (
+                            <MaterialCommunityIcons name="account" color={color} size={26} />
+                          ),
+                        }}
+                  />
+                </Tab.Navigator>
               </>
             )}
           </Stack.Navigator>
