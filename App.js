@@ -124,7 +124,7 @@ export default function App() {
 //Once the isLoading is gone (logged or not logged) the app will render this stack
   return (
     <mainContext.Provider value={mainC}> 
-        <NavigationContainer theme={theme}>
+        <NavigationContainer>
           <Stack.Navigator initialRouteName="Login">
             {userLogged == false ? (
               <>
@@ -133,9 +133,7 @@ export default function App() {
               </>
             ) : (
               <>
-                <Stack.Screen name="Home" options={{ headerShown: false }}>
-                  {props => <HomeScreen {...props} extraData={userProfile} />}
-                </Stack.Screen>
+                <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
               </>
             )}
           </Stack.Navigator>
