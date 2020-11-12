@@ -11,7 +11,7 @@ export default function Profile({navigation}) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Welcome {currentUser.email}</Text>
+            <Text style={styles.text}>Welcome {currentUser.displayName}</Text>
             <TouchableOpacity
                 style={styles.button}
                 onPress={() => signOutUser()}>

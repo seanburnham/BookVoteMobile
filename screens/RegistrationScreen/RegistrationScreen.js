@@ -6,7 +6,7 @@ import mainContext from '../../src/mainContext';
 
 export default function RegistrationScreen({navigation}) {
     const { handleSignup } = useContext(mainContext);
-    const [fullName, setFullName] = useState('')
+    const [username, setFullName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -20,7 +20,7 @@ export default function RegistrationScreen({navigation}) {
             alert("Passwords don't match.")
             return
         }
-        handleSignup(fullName, email, password);
+        handleSignup(username, email, password);
     }
 
     return (
@@ -29,10 +29,10 @@ export default function RegistrationScreen({navigation}) {
             <View style={styles.inputView} >
                 <TextInput
                     style={styles.inputText}
-                    placeholder='Full Name'
+                    placeholder='Username'
                     placeholderTextColor="white"
                     onChangeText={(text) => setFullName(text)}
-                    value={fullName}
+                    value={username}
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
                 />

@@ -52,25 +52,33 @@ export default function App() {
             });
       })
       .catch(error => {
-          alert(error)
-          console.log(error)
+          if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+            alert('Invalid combination of Email and Password');
+          } 
+          else {
+            alert(error);
+            console.log(error)
+          }
       });
 
     setIsLoading(false);
   };
 
-  const doSignup = async (fullName, email, password) => {
+  const doSignup = async (username, email, password) => {
     setIsLoading(true);
 
     firebase.auth()
       .createUserWithEmailAndPassword(email, password)
       .then((response) => {
           const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+          response.user.updateProfile({
+            displayName: username
+          });
           const uid = response.user.uid
           const data = {
               id: uid,
               email,
-              fullName,
+              username,
               createdAt: timestamp,
           };
           const usersRef = firebase.firestore().collection('users')
