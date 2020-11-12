@@ -122,7 +122,7 @@ export default function App() {
     // Checking if already logged in
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator animating={true} size="large" />
+        <ActivityIndicator animating={true} size="large" color='#465881' />
       </View>
     );
   }
