@@ -1,13 +1,25 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { GroupsScreen, HomeScreen, ProfileScreen } from '../../screens'
+import { GroupsScreen, HomeScreen, ProfileScreen, CreateGroupScreen } from '../../screens'
+import { createStackNavigator } from '@react-navigation/stack'
 import {decode, encode} from 'base-64'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 if (!global.btoa) {  global.btoa = encode }
 if (!global.atob) { global.atob = decode }
 
+const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator()
+
+function GroupsHome() {
+  return (
+    <Stack.Navigator initialRouteName="GroupsHome">
+      <Stack.Screen name='GroupsHome' component={GroupsScreen} options={{ headerShown: false, title: 'Groups' }}/>
+      <Stack.Screen name='CreateGroup' component={CreateGroupScreen} options={{ headerShown: true, title: 'New Group' }}/>
+    </Stack.Navigator>
+  );
+}
+
 
 export default function TabNavigation() {
     return (
@@ -29,7 +41,7 @@ export default function TabNavigation() {
         />
         <Tab.Screen 
             name='Groups' 
-            component={GroupsScreen} 
+            component={GroupsHome} 
             options={{
                 tabBarLabel: 'Groups',
                 tabBarIcon: ({ color }) => (

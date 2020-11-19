@@ -23,7 +23,7 @@ export default StyleSheet.create({
     groupBtns: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginBottom: 50,
+        marginBottom: 25,
         marginTop: 25,
     }
 })
