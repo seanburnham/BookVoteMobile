@@ -20,6 +20,12 @@ export default function CreateGroupScreen({navigation}) {
     }
 
     const onCreateBtnPress = () => {
+
+        if(groupName === '' || description === ''){
+            alert('Please fill out both Group Name and Description');
+            return;
+        }
+
         const user = firebase.auth().currentUser;
         const timestamp = firebase.firestore.FieldValue.serverTimestamp();
         const data = {

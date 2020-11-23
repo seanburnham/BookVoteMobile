@@ -3,6 +3,8 @@ import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View, SafeAreaVi
 import { ListItem, Avatar, Badge } from 'react-native-elements'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
+import { ActivityIndicator } from 'react-native-paper';
+
 
 export default function GroupsScreen({navigation}) {
 
@@ -10,12 +12,8 @@ export default function GroupsScreen({navigation}) {
         console.log(id)
     }
 
-    // const [loading, setLoading] = useState(true); // Set loading to true on component mount
+    const [loading, setLoading] = useState(true); // Set loading to true on component mount
     const [groups, setGroups] = useState([]); // Initial empty array of groups
-
-    // if (loading) {
-    //   return <ActivityIndicator />;
-    // }
 
     useEffect(() => {
       const user = firebase.auth().currentUser;
@@ -33,7 +31,7 @@ export default function GroupsScreen({navigation}) {
           });
     
           setGroups(groups);
-          // setLoading(false);
+          setLoading(false);
         });
 
       // Unsubscribe from events when no longer in use
@@ -43,15 +41,25 @@ export default function GroupsScreen({navigation}) {
     const keyExtractor = (item, index) => index.toString()
 
     const renderItem = ({ item }) => (
-        <ListItem bottomDivider onPress={() => goToSelectedGroup(item.name)}>
+        <ListItem bottomDivider onPress={() => goToSelectedGroup(item.key)}>
             <Avatar rounded source={require('../../assets/newLogo.png')} />
             <ListItem.Content>
                 <ListItem.Title>{item.name}</ListItem.Title>
-                <ListItem.Subtitle>{item.groupSize} {item.groupSize > 1 ? 'members' : 'member'}</ListItem.Subtitle>
+                <ListItem.Subtitle>
+                  {item.groupSize} {item.groupSize > 1 ? 'members' : 'member'}
+                </ListItem.Subtitle>
             </ListItem.Content>
             <ListItem.Chevron />
         </ListItem>
     )
+
+    if (loading) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator animating={true} size="large" color='#465881' />
+        </View>
+      );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -65,9 +73,10 @@ export default function GroupsScreen({navigation}) {
             
 
             <View style={styles.groupBtns}>
-                <TouchableOpacity style={styles.newGroupBtn} >
+                <TouchableOpacity style={styles.newGroupBtn} onPress={() => navigation.navigate('JoinGroup')}>
                     <Text style={styles.entityText}>Join</Text>
-                </TouchableOpacity><TouchableOpacity style={styles.newGroupBtn} onPress={() => navigation.navigate('CreateGroup')}>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.newGroupBtn} onPress={() => navigation.navigate('CreateGroup')}>
                     <Text style={styles.entityText}>Create</Text>
                 </TouchableOpacity>
             </View>
