@@ -63,14 +63,21 @@ export default function GroupsScreen({navigation}) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.groupListArea}>
+            {groups.length < 1 ? 
+              <View style={{flex: 1, justifyContent: 'center'}}>
+                <Text style={{textAlign: 'center', fontSize: 20, color: '#333333'}}>
+                  You are not a member of any groups yet. Join a group or create your own!
+                </Text>
+              </View> 
+              : 
+              <View style={styles.groupListArea}>
                 <FlatList
                     keyExtractor={keyExtractor}
                     data={groups}
                     renderItem={renderItem}
                 />
-            </View>
-            
+              </View>
+            }
 
             <View style={styles.groupBtns}>
                 <TouchableOpacity style={styles.newGroupBtn} onPress={() => navigation.navigate('JoinGroup')}>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View, SafeAreaView, Modal, Alert } from 'react-native'
-import { ListItem, Avatar, Badge } from 'react-native-elements'
+import { ListItem, Avatar, Badge, SearchBar } from 'react-native-elements'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import { ActivityIndicator } from 'react-native-paper';
@@ -11,6 +11,8 @@ export default function JoinGroupsScreen({navigation}) {
 
     const [loading, setLoading] = useState(true); // Set loading to true on component mount
     const [groups, setGroups] = useState([]); // Initial empty array of groups
+    const [filteredGroups, setFilteredGroups] = useState([]); 
+    const [search, setSearch] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedGroupId, setSelectedGroupId] = useState('');
     const [selectedGroupName, setSelectedGroupName] = useState('');
@@ -34,6 +36,7 @@ export default function JoinGroupsScreen({navigation}) {
           });
     
           setGroups(groups);
+          setFilteredGroups(groups);
           setLoading(false);
         });
 
@@ -41,6 +44,14 @@ export default function JoinGroupsScreen({navigation}) {
       return () => allGroups();
     }, []);
 
+    const updateSearch = (input) => {
+        const formattedQuery = input.toLowerCase();
+        const filteredData = groups.filter(group => {
+            return group.name.includes(formattedQuery);
+        });
+        setFilteredGroups(filteredData);
+        setSearch(input);
+      }
 
     const showSelectedGroup = (id, name, description, isPrivate) => {
         setSelectedGroupId(id);
@@ -123,10 +134,17 @@ export default function JoinGroupsScreen({navigation}) {
                     </View>
                 </View>
             </Modal>
+            <SearchBar
+                placeholder="Search Groups..."
+                onChangeText={updateSearch}
+                value={search}
+                lightTheme={true}
+                round={true}
+            />
             <View style={styles.groupListArea}>
                 <FlatList
                     keyExtractor={keyExtractor}
-                    data={groups}
+                    data={filteredGroups}
                     renderItem={renderItem}
                 />
             </View>
