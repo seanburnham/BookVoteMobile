@@ -9,7 +9,9 @@ import { ActivityIndicator } from 'react-native-paper';
 export default function GroupsScreen({navigation}) {
 
     const goToSelectedGroup = (id) => {
-        console.log(id)
+      navigation.navigate('GroupDetail', {
+        groupId: id,
+      });
     }
 
     const [loading, setLoading] = useState(true); // Set loading to true on component mount
@@ -42,7 +44,7 @@ export default function GroupsScreen({navigation}) {
 
     const renderItem = ({ item }) => (
         <ListItem bottomDivider onPress={() => goToSelectedGroup(item.key)}>
-            <Avatar rounded source={require('../../assets/newLogo.png')} />
+            <Avatar rounded icon={{name: 'account-group', type: 'material-community'}} source={require('../../assets/newLogo.png')} />
             <ListItem.Content>
                 <ListItem.Title>{item.name}</ListItem.Title>
                 <ListItem.Subtitle>

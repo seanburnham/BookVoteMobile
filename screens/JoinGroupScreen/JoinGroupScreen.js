@@ -47,7 +47,7 @@ export default function JoinGroupsScreen({navigation}) {
     const updateSearch = (input) => {
         const formattedQuery = input.toLowerCase();
         const filteredData = groups.filter(group => {
-            return group.name.includes(formattedQuery);
+            return group.name.toLowerCase().includes(formattedQuery);
         });
         setFilteredGroups(filteredData);
         setSearch(input);
@@ -87,11 +87,11 @@ export default function JoinGroupsScreen({navigation}) {
 
     const renderItem = ({ item }) => (
         <ListItem bottomDivider onPress={() => showSelectedGroup(item.key, item.name, item.description, item.isPrivate)}>
-            <Avatar rounded source={require('../../assets/newLogo.png')} />
+            <Avatar rounded icon={{name: 'account-group', type: 'material-community'}} source={require('../../assets/newLogo.png')} />
             <ListItem.Content>
                 <ListItem.Title>
-                    {item.name}
-                    {item.isPrivate == true ? <MaterialCommunityIcons name="lock" color='#fb5b5a' size={12} /> : '' }
+                    {item.name + ' '}
+                    {item.isPrivate == true && <MaterialCommunityIcons name="lock" color='#fb5b5a' size={12} /> }
                 </ListItem.Title>
                 <ListItem.Subtitle style={styles.subtitle}>
                     {item.groupSize > 1 ? item.groupSize + ' members' : item.groupSize + ' member'}

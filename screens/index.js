@@ -14,3 +14,5 @@ export { default as CreateGroupScreen } from './CreateGroupScreen/CreateGroupScr
 
 export { default as JoinGroupScreen } from './JoinGroupScreen/JoinGroupScreen'
 
+export { default as GroupDetailScreen } from './GroupDetailScreen/GroupDetailScreen'
+
