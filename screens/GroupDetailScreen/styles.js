@@ -76,6 +76,16 @@ export default StyleSheet.create({
         // marginBottom:20,
         justifyContent:"center",
         padding:20
+    },
+    postBtn: {
+        backgroundColor:"#fb5b5a",
+        borderRadius: 5,
+        height: 45,
+        padding: 5,
+        width: '15%',
+        alignItems:"center",
+        justifyContent:"center",
+        marginLeft: 5,
     }
 
 })
