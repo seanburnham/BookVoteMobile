@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View, SafeAreaView, ScrollView } from 'react-native'
+import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View, SafeAreaView, Modal, Alert } from 'react-native'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import { Divider, Avatar } from 'react-native-elements';
@@ -14,6 +14,7 @@ export default function GroupDetailScreen({ route, navigation }) {
     const [numOfMembers, setNumOfMembers] = useState('');
     const [userComment, setUserComment] = useState('');
     const [loading, setLoading] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         const groupsRef = firebase.firestore().collection('groups').doc(groupId);
@@ -21,7 +22,7 @@ export default function GroupDetailScreen({ route, navigation }) {
             if (doc.exists) {
                 setGroup(doc.data())
                 setNumOfMembers(doc.data().users.length)
-                if(doc.data().users.indexOf(currentUser.uid) > -1 || doc.data().isPrivate == false){
+                if((doc.data().users.indexOf(currentUser.uid) > -1 || doc.data().isPrivate == false) && doc.data().comments != undefined){
                     const sortedComments = doc.data().comments.sort((a, b) => b.postDate.toDate() - a.postDate.toDate())
                     setGroupComments(sortedComments)
                 }
@@ -54,6 +55,28 @@ export default function GroupDetailScreen({ route, navigation }) {
                 groupComments.unshift({'userId': currentUser.uid, 'userName': currentUser.displayName, 'body': userComment, 'postDate': timestamp});
                 setUserComment('')
             })
+    }
+
+    const joinSelectedGroup = () => {
+        if(group.isPrivate == true){
+            Alert.alert(
+                "Alert",
+                "Request to join private group sent to group creator",
+                [
+                  { text: "OK", onPress: () => setModalVisible(false) }
+                ],
+                { cancelable: false }
+              );
+        }
+        else{
+            console.log('Joining Group ' + group.name)
+            const groupRef = firebase.firestore().collection('groups').doc(groupId);
+            groupRef.update({'users': firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.uid)})
+            .then(() => {
+                setModalVisible(false);
+                navigation.navigate('GroupsHome')
+            })
+        }
     }
 
 
@@ -100,19 +123,49 @@ export default function GroupDetailScreen({ route, navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <View style={styles.modalGroupInfo}>
+                            <Text style={styles.modalGroupName}>Are you sure?</Text>
+                            <Text style={styles.modalGroupDesc}>
+                                {group.isPrivate == true ? 
+                                    'This is a private group. Clicking Join will send a request to the group owner to grant you access to the group!'
+                                :
+                                    'Welcome to this public group! Click Join to make it official!'
+                                }
+                            </Text>
+                        </View>
+                        
+                        <View style={styles.groupBtns}>
+                            <TouchableOpacity style={styles.modalBtn} onPress={() => {joinSelectedGroup();}}>
+                                <Text style={styles.entityText}>Join</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalBtn} onPress={() => {setModalVisible(!modalVisible);}}>
+                                <Text style={styles.entityText}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
             <FlatList
                 ListHeaderComponent={
                     <>
                         <View style={styles.groupDetails}>
                             <Text style={styles.groupTitle}>{group.name}</Text>
-                            <Text style={styles.groupSubtitle}>{group.isPrivate == 'true' ? 'Private Group - ' + numOfMembers + ' members' : 'Public Group - ' + numOfMembers + ' members'}</Text>
+                            <Text style={styles.groupSubtitle}>{group.isPrivate == true ? 'Private Group - ' + numOfMembers + ' members' : 'Public Group - ' + numOfMembers + ' members'}</Text>
+                            <Text style={styles.groupSubtitle}>Created: {String(group.createdDate.toDate().toLocaleString([], {year: 'numeric', month: 'long', day: 'numeric'}))}</Text>
                             <Text style={styles.groupDescription}>{group.description}</Text>
                         </View>
                     
                         {group.users.indexOf(currentUser.uid) > -1 ? 
                             <View style={styles.groupBtns}>
-                                <TouchableOpacity style={styles.joinBtn} onPress={() => console.log('Pressed Add To List')}>
-                                    <Text style={styles.btnText}>Add Book</Text>
+                                <TouchableOpacity style={styles.joinBtn} onPress={() => console.log('Pressed Book List')}>
+                                    <Text style={styles.btnText}>Book List</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.joinBtn} onPress={() => console.log('Pressed Vote')}>
                                     <Text style={styles.btnText}>Vote</Text>
@@ -120,7 +173,7 @@ export default function GroupDetailScreen({ route, navigation }) {
                             </View>
                             : 
                             <View style={styles.groupBtns}>
-                                <TouchableOpacity style={styles.joinBtn} onPress={() => console.log('Pressed Join')}>
+                                <TouchableOpacity style={styles.joinBtn} onPress={() => {setModalVisible(true);}}>
                                     <Text style={styles.btnText}>Join</Text>
                                 </TouchableOpacity>
                             </View>

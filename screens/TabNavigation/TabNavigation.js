@@ -17,7 +17,7 @@ function GroupsHome() {
       <Stack.Screen name='GroupsHome' component={GroupsScreen} options={{ headerShown: false, title: 'Groups' }}/>
       <Stack.Screen name='CreateGroup' component={CreateGroupScreen} options={{ headerShown: true, title: 'New Group' }}/>
       <Stack.Screen name='JoinGroup' component={JoinGroupScreen} options={{ headerShown: true, title: 'Join Group' }}/>
-      <Stack.Screen name='GroupDetail' component={GroupDetailScreen} options={{ headerShown: false, title: 'Group Details' }}/>
+      <Stack.Screen name='GroupDetail' component={GroupDetailScreen} options={{ headerShown: true, title: 'Group Details' }}/>
     </Stack.Navigator>
   );
 }

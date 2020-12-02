@@ -13,11 +13,6 @@ export default function JoinGroupsScreen({navigation}) {
     const [groups, setGroups] = useState([]); // Initial empty array of groups
     const [filteredGroups, setFilteredGroups] = useState([]); 
     const [search, setSearch] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedGroupId, setSelectedGroupId] = useState('');
-    const [selectedGroupName, setSelectedGroupName] = useState('');
-    const [selectedGroupDesc, setSelectedGroupDesc] = useState('');
-    const [selectedGroupPrivate, setSelectedGroupPrivate] = useState(false);
 
     useEffect(() => {
       const user = firebase.auth().currentUser;
@@ -44,6 +39,12 @@ export default function JoinGroupsScreen({navigation}) {
       return () => allGroups();
     }, []);
 
+    const goToSelectedGroup = (id) => {
+        navigation.navigate('GroupDetail', {
+          groupId: id,
+        });
+      }
+
     const updateSearch = (input) => {
         const formattedQuery = input.toLowerCase();
         const filteredData = groups.filter(group => {
@@ -53,40 +54,10 @@ export default function JoinGroupsScreen({navigation}) {
         setSearch(input);
       }
 
-    const showSelectedGroup = (id, name, description, isPrivate) => {
-        setSelectedGroupId(id);
-        setSelectedGroupName(name);
-        setSelectedGroupDesc(description);
-        setSelectedGroupPrivate(isPrivate)
-        setModalVisible(true);
-    }
-
-    const joinSelectedGroup = () => {
-        if(selectedGroupPrivate == true){
-            Alert.alert(
-                "Alert",
-                "Request to join private group sent to group creator",
-                [
-                  { text: "OK", onPress: () => setModalVisible(false) }
-                ],
-                { cancelable: false }
-              );
-        }
-        else{
-            console.log('Joining Group ' + selectedGroupName)
-            const groupRef = firebase.firestore().collection('groups').doc(selectedGroupId);
-            groupRef.update({'users': firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.uid)})
-            .then(() => {
-                setModalVisible(false);
-                navigation.navigate('GroupsHome')
-            })
-        }
-    }
-
     const keyExtractor = (item, index) => index.toString()
 
     const renderItem = ({ item }) => (
-        <ListItem bottomDivider onPress={() => showSelectedGroup(item.key, item.name, item.description, item.isPrivate)}>
+        <ListItem bottomDivider onPress={() => goToSelectedGroup(item.key)}>
             <Avatar rounded icon={{name: 'account-group', type: 'material-community'}} source={require('../../assets/newLogo.png')} />
             <ListItem.Content>
                 <ListItem.Title>
@@ -111,29 +82,6 @@ export default function JoinGroupsScreen({navigation}) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <View style={styles.modalGroupInfo}>
-                            <Text style={styles.modalGroupName}>{selectedGroupName}</Text>
-                            <Text style={styles.modalGroupDesc}>{selectedGroupDesc}</Text>
-                        </View>
-                        
-                        <View style={styles.groupBtns}>
-                            <TouchableOpacity style={styles.modalBtn} onPress={() => {joinSelectedGroup();}}>
-                                <Text style={styles.entityText}>Join</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalBtn} onPress={() => {setModalVisible(!modalVisible);}}>
-                                <Text style={styles.entityText}>Cancel</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
             <SearchBar
                 placeholder="Search Groups..."
                 onChangeText={updateSearch}
