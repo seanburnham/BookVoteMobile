@@ -27,13 +27,15 @@ export default function BookList({route, navigation}) {
                 downVotes: currentGroupRatings.downVotes
             });
           });
-
-          books.sort((a, b) => (a.upVotes > b.upVotes) ? 1 : -1);
-          if(books[0].upVotes > 0){
-            const topBook = books.shift();
-            setTopBook(topBook);
+          
+          if(books.length > 0){
+            books.sort((a, b) => (a.upVotes > b.upVotes) ? 1 : -1);
+            if(books[0].upVotes > 0){
+                const topBook = books.shift();
+                setTopBook(topBook);
+              }
+              setBooks(books);
           }
-          setBooks(books);
           setLoading(false);
         });
 
@@ -85,19 +87,27 @@ export default function BookList({route, navigation}) {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.bookListArea}>
-                <FlatList
-                    keyExtractor={keyExtractor}
-                    data={books}
-                    renderItem={renderItem}
-                    ItemSeparatorComponent={itemSeparator}
-                    ListHeaderComponent={
-                        <>
-                            {topBook.length > 0 &&
-                                <Text>Top Rated Book</Text>
-                            }
-                        </>
-                    }
-                />
+
+                {books.length > 0 ? 
+                    <FlatList
+                        keyExtractor={keyExtractor}
+                        data={books}
+                        renderItem={renderItem}
+                        ItemSeparatorComponent={itemSeparator}
+                        ListHeaderComponent={
+                            <>
+                                {topBook.length > 0 &&
+                                    <Text>Top Rated Book</Text>
+                                }
+                            </>
+                        }
+                    />
+                :
+                    <View style={styles.emptyList}>
+                        <Text style={{fontSize: 24, color: 'gray'}}>Empty Book List</Text>
+                    </View>
+                }
+
             </View>
         </SafeAreaView>
     )

@@ -7,4 +7,9 @@ export default StyleSheet.create({
     bookListArea: {
         flex: 1,
     },
+    emptyList: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
 })
