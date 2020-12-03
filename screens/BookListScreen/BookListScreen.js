@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Text, View, SafeAreaView } from 'react-native'
-import { Divider, Avatar } from 'react-native-elements'
+import { FlatList, Text, View, SafeAreaView, Image, TouchableOpacity } from 'react-native'
+import { Divider, Avatar, Icon } from 'react-native-elements'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import { ActivityIndicator } from 'react-native-paper';
@@ -10,7 +10,8 @@ export default function BookList({route, navigation}) {
 
     const [loading, setLoading] = useState(true); // Set loading to true on component mount
     const [books, setBooks] = useState([]);
-    const [topBook, setTopBook] = useState([]);
+    const [booksExist, setBooksExist] = useState(false);
+    const [topRatedBook, setTopRatedBook] = useState([]);
     const { groupId } = route.params;
 
     useEffect(() => {
@@ -29,10 +30,11 @@ export default function BookList({route, navigation}) {
           });
           
           if(books.length > 0){
+            setBooksExist(true);
             books.sort((a, b) => (a.upVotes > b.upVotes) ? 1 : -1);
             if(books[0].upVotes > 0){
                 const topBook = books.shift();
-                setTopBook(topBook);
+                setTopRatedBook(topBook);
               }
               setBooks(books);
           }
@@ -46,28 +48,26 @@ export default function BookList({route, navigation}) {
     const keyExtractor = (item, index) => index.toString()
 
     const renderItem = ({ item }) => (
-        <View style={{flexDirection: 'row', margin: 10, }}>
+        <TouchableOpacity style={styles.listItem} onPress={() => console.log('Book Pressed')}>
             <Avatar
                 size={'medium'}
-                // containerStyle={styles.commentAvatar}
-                // icon={{name: 'user', color: 'white', type: 'font-awesome'}}
                 source={{uri: item.grImage}}
                 imageProps={{resizeMode: 'contain'}}
             />
-            <View style={{justifyContent: 'center', marginLeft: 5, width: '90%'}}>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <View style={{alignItems: 'center'}}>
-                        <Text>{item.title}</Text>
-                    </View>
-                    {/* <View style={{alignItems: 'center'}}>
-                        <Text style={{fontSize: 8}}>{String(item.postDate.toDate().toLocaleString([], {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit'}))}</Text>
-                    </View> */}
+            <View style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', width: '80%' }}>
+                <View style={{marginLeft: 5,}}>
+                    <Text>{item.title}</Text>
+                    <Text style={{fontSize: 10}}>{item.author}</Text>
                 </View>
-                <View style={{marginTop: 5}}>
-                    <Text>{item.author}</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Icon name='thumbs-up' type='font-awesome' color='#333333' />
+                    <Text style={{marginRight: 15}}> - {item.upVotes}</Text>
+                    <Icon name='thumbs-down' type='font-awesome' color='#333333' />
+                    <Text> - {item.downVotes}</Text>
                 </View>
             </View>
-        </View>
+        </TouchableOpacity>
+
     )
 
     const itemSeparator = () => (
@@ -87,8 +87,7 @@ export default function BookList({route, navigation}) {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.bookListArea}>
-
-                {books.length > 0 ? 
+                {booksExist == true ? 
                     <FlatList
                         keyExtractor={keyExtractor}
                         data={books}
@@ -96,8 +95,30 @@ export default function BookList({route, navigation}) {
                         ItemSeparatorComponent={itemSeparator}
                         ListHeaderComponent={
                             <>
-                                {topBook.length > 0 &&
-                                    <Text>Top Rated Book</Text>
+                                {Object.keys(topRatedBook).length != 0 &&
+
+                                    <View style={styles.topBookArea}>
+                                        <Text style={styles.topVotedBookLabel}>Top Rated Book</Text>
+                                        <Text style={styles.topVotedBookTitle}>{topRatedBook.title}</Text>
+                                        <Image style={styles.topRateBookImage} source={{uri: topRatedBook.grImage,}}></Image>
+                                        <View style={styles.topRatedBookDetails}>
+                                            <Text style={{fontSize: 12, marginRight: 10, color: '#fb5b5a'}}>Goodreads Rating - {topRatedBook.grRating} / 5.0</Text>
+                                            <Text style={{fontSize: 12, color: '#fb5b5a'}}>Page Count - {topRatedBook.grPageCount}</Text>
+                                        </View>
+                                        <View style={{
+                                            paddingVertical: 15,
+                                            paddingHorizontal: 10,
+                                            flexDirection: "row",
+                                            justifyContent: "space-between",
+                                            alignItems: "center"
+                                        }}>
+                                            <Icon name='thumbs-up' type='font-awesome' color='#333333' />
+                                            <Text style={{marginRight: 15}}> - {topRatedBook.upVotes}</Text>
+                                            <Icon name='thumbs-down' type='font-awesome' color='#333333' />
+                                            <Text> - {topRatedBook.downVotes}</Text>
+                                        </View>
+                                    </View>
+                                    
                                 }
                             </>
                         }
