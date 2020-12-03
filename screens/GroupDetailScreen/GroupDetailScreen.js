@@ -164,7 +164,7 @@ export default function GroupDetailScreen({ route, navigation }) {
                     
                         {group.users.indexOf(currentUser.uid) > -1 ? 
                             <View style={styles.groupBtns}>
-                                <TouchableOpacity style={styles.joinBtn} onPress={() => console.log('Pressed Book List')}>
+                                <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookList', {groupId: groupId})}>
                                     <Text style={styles.btnText}>Book List</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.joinBtn} onPress={() => console.log('Pressed Vote')}>
@@ -189,12 +189,16 @@ export default function GroupDetailScreen({ route, navigation }) {
                                         size={'large'}
                                         avatarStyle={{borderRadius:20}}
                                         containerStyle={styles.currentBookImage}
-                                        icon={{name: 'book', color: '#fb5b5a', type: 'font-awesome'}}
-                                        source={require('../../assets/newLogo.png')}
+                                        // icon={{name: 'book', color: '#fb5b5a', type: 'font-awesome'}}
+                                        // source={require('../../assets/newLogo.png')}
+                                        source={{
+                                            uri: group.currentBook.image,
+                                          }}
+                                        imageProps={{resizeMode: 'contain'}}
                                     />
                                     <View style={styles.bookDetails}>
                                         <Text>{group.currentBook.title}</Text>
-                                        <Text>{group.currentBook.author}</Text>
+                                        <Text style={{fontSize: 12}}>{group.currentBook.author}</Text>
                                     </View>
                                 </View>
                             </View>
