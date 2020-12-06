@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Text, View, SafeAreaView, Image, TouchableOpacity } from 'react-native'
+import { FlatList, Text, View, SafeAreaView, Image, TouchableOpacity, Modal } from 'react-native'
 import { Divider, Avatar, Icon } from 'react-native-elements'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import { ActivityIndicator } from 'react-native-paper';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 export default function BookList({route, navigation}) {
@@ -12,6 +13,8 @@ export default function BookList({route, navigation}) {
     const [books, setBooks] = useState([]);
     const [booksExist, setBooksExist] = useState(false);
     const [topRatedBook, setTopRatedBook] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedBook, setSelectedBook] = useState({});
     const { groupId } = route.params;
 
     useEffect(() => {
@@ -45,10 +48,22 @@ export default function BookList({route, navigation}) {
       return () => currentGroupBooks();
     }, []);
 
+    const openBookModal = (title, description, rating, pageCount, author) => {
+        const selection = {
+            'title': title, 
+            'description': description, 
+            'rating': rating, 
+            'pageCount': pageCount, 
+            'author': author
+        };
+        setSelectedBook(selection);
+        setModalVisible(true);
+    }
+
     const keyExtractor = (item, index) => index.toString()
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.listItem} onPress={() => console.log('Book Pressed')}>
+        <TouchableOpacity style={styles.listItem} onPress={() => {openBookModal(item.title, item.grDescription, item.grRating, item.grPageCount, item.author)}}>
             <Avatar
                 size={'medium'}
                 source={{uri: item.grImage}}
@@ -86,6 +101,30 @@ export default function BookList({route, navigation}) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <ScrollView>
+                            <View style={styles.modalBookInfo}>
+                                <Text style={styles.modalBookTitle}>{selectedBook.title}</Text>
+                                <Text style={{fontSize: 12, textAlign: 'center'}}>{selectedBook.author}</Text>
+                                <View style={styles.topRatedBookDetails}>
+                                    <Text style={{fontSize: 12, marginRight: 10, color: '#fb5b5a'}}>Goodreads Rating - {selectedBook.rating} / 5.0</Text>
+                                    <Text style={{fontSize: 12, color: '#fb5b5a'}}>Page Count - {selectedBook.pageCount}</Text>
+                                </View>
+                                <Text style={styles.modalBookDesc}>{selectedBook.description}</Text>
+                            </View>
+                        </ScrollView>
+                        <TouchableOpacity style={styles.modalBtn} onPress={() => {setModalVisible(!modalVisible);}}>
+                            <Text style={styles.entityText}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
             <View style={styles.bookListArea}>
                 {booksExist == true ? 
                     <FlatList
