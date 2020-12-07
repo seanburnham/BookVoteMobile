@@ -18,3 +18,5 @@ export { default as GroupDetailScreen } from './GroupDetailScreen/GroupDetailScr
 
 export { default as BookListScreen } from './BookListScreen/BookListScreen'
 
+export { default as AddBookScreen } from './AddBookScreen/AddBookScreen'
+

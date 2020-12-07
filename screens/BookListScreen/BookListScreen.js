@@ -18,31 +18,43 @@ export default function BookList({route, navigation}) {
     const { groupId } = route.params;
 
     useEffect(() => {
-      const groupsRef = firebase.firestore().collection('books')
-      const currentGroupBooks = groupsRef.where('groups', 'array-contains', groupId)
-        .onSnapshot(querySnapshot => {
-          const books = [];
-          querySnapshot.forEach(documentSnapshot => {
-            const currentGroupRatings = documentSnapshot.data().groupRatings.find( ({ groupId }) => groupId === groupId );
-            books.push({
-                ...documentSnapshot.data(),
-                key: documentSnapshot.id,
-                upVotes: currentGroupRatings.upVotes,
-                downVotes: currentGroupRatings.downVotes
-            });
-          });
-          
-          if(books.length > 0){
-            setBooksExist(true);
-            books.sort((a, b) => (a.upVotes > b.upVotes) ? 1 : -1);
-            if(books[0].upVotes > 0){
-                const topBook = books.shift();
-                setTopRatedBook(topBook);
-              }
-              setBooks(books);
-          }
-          setLoading(false);
+        navigation.setOptions({
+            title : 'Add Book',
+            headerRight: () => (
+                <Icon
+                  name='add-to-list'
+                  type='entypo'
+                  color='#32b853'
+                  onPress={() => navigation.navigate('AddBook', {groupId: groupId})}
+                  style={{marginRight: 25}}
+                />
+              ), 
         });
+        const groupsRef = firebase.firestore().collection('books')
+        const currentGroupBooks = groupsRef.where('groups', 'array-contains', groupId)
+            .onSnapshot(querySnapshot => {
+                const books = [];
+                querySnapshot.forEach(documentSnapshot => {
+                    const currentGroupRatings = documentSnapshot.data().groupRatings.find( ({ groupId }) => groupId === groupId );
+                    books.push({
+                        ...documentSnapshot.data(),
+                        key: documentSnapshot.id,
+                        upVotes: currentGroupRatings.upVotes,
+                        downVotes: currentGroupRatings.downVotes
+                    });
+                });
+          
+                if(books.length > 0){
+                    setBooksExist(true);
+                    books.sort((a, b) => (a.upVotes > b.upVotes) ? 1 : -1);
+                    if(books[0].upVotes > 0){
+                        const topBook = books.shift();
+                        setTopRatedBook(topBook);
+                    }
+                    setBooks(books);
+                }
+                setLoading(false);
+            });
 
       // Unsubscribe from events when no longer in use
       return () => currentGroupBooks();

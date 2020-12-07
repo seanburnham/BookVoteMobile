@@ -1,7 +1,8 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react'
+import { Icon } from 'react-native-elements'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { GroupsScreen, HomeScreen, ProfileScreen, CreateGroupScreen, JoinGroupScreen, GroupDetailScreen, BookListScreen } from '../../screens'
+import { GroupsScreen, HomeScreen, ProfileScreen, CreateGroupScreen, JoinGroupScreen, GroupDetailScreen, BookListScreen, AddBookScreen } from '../../screens'
 import { createStackNavigator } from '@react-navigation/stack'
 import {decode, encode} from 'base-64'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,14 +12,15 @@ if (!global.atob) { global.atob = decode }
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator()
 
-function GroupsHome() {
+function GroupsHome({navigation}) {
   return (
     <Stack.Navigator initialRouteName="GroupsHome">
       <Stack.Screen name='GroupsHome' component={GroupsScreen} options={{ headerShown: false, title: 'Groups' }}/>
       <Stack.Screen name='CreateGroup' component={CreateGroupScreen} options={{ headerShown: true, title: 'New Group' }}/>
       <Stack.Screen name='JoinGroup' component={JoinGroupScreen} options={{ headerShown: true, title: 'Join Group' }}/>
       <Stack.Screen name='GroupDetail' component={GroupDetailScreen} options={{ headerShown: true, title: 'Group Details' }}/>
-      <Stack.Screen name='BookList' component={BookListScreen} options={{ headerShown: true, title: 'Book List' }}/>
+      <Stack.Screen name='BookList' component={BookListScreen} options={{ headerShown: true, title: 'Book List'}}/>
+      <Stack.Screen name='AddBook' component={AddBookScreen} options={{ headerShown: true, title: 'Add Book' }}/>
     </Stack.Navigator>
   );
 }
