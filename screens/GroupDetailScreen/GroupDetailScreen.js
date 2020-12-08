@@ -201,12 +201,12 @@ export default function GroupDetailScreen({ route, navigation }) {
                                         <Text style={{fontSize: 12}}>{group.currentBook.author}</Text>
                                     </View>
                                 </View>
+                                <Divider style={{ backgroundColor: '#465881', height: 5, marginTop: 20, marginBottom: 20 }} />
                             </View>
                         }
 
                         {group.users.indexOf(currentUser.uid) > -1 &&
                             <View>
-                                <Divider style={{ backgroundColor: '#465881', height: 5, marginTop: 20, marginBottom: 20 }} />
                                 <View style={styles.commentArea}>
                                     {/* <Avatar
                                         rounded

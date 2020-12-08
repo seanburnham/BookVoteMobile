@@ -19,7 +19,7 @@ export default function BookList({route, navigation}) {
 
     useEffect(() => {
         navigation.setOptions({
-            title : 'Add Book',
+            title : 'Book List',
             headerRight: () => (
                 <Icon
                   name='add-to-list'
