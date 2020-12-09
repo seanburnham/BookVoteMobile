@@ -51,7 +51,7 @@ export default function AddBookScreen({route, navigation}) {
         
     }
 
-    const openBookModal = (bookId, author) => {
+    const openBookModal = (bookId, author, image) => {
 
         fetch('https://www.goodreads.com/book/show/' + bookId + '.xml?key=Te7ahdToiP8n7iV3Lpgw6g')
             .then((response) => response.text())
@@ -60,11 +60,13 @@ export default function AddBookScreen({route, navigation}) {
                 const searchResults = obj.GoodreadsResponse.book
 
                 const bookResult = {
+                    'bookId': bookId,
                     'title': searchResults.title, 
                     'description': searchResults.description.replace( /(<([^>]+)>)/ig, ' '), //Remove HTML Tags
                     'rating': searchResults.average_rating, 
                     'pageCount': searchResults.num_pages, 
-                    'author': author
+                    'author': author,
+                    'image': image
                 }
                 // console.log(bookResult)
                 setSelectedBook(bookResult)
@@ -76,10 +78,56 @@ export default function AddBookScreen({route, navigation}) {
         setModalVisible(true);
     }
 
+    const addBookToList = () => {
+        const booksRef = firebase.firestore().collection('books')
+        const query = booksRef.where('grBookID', '==', String(selectedBook.bookId));
+
+        query.get()
+            .then(snap => {
+                // snap is a QuerySnapshot
+                if (snap.empty) {
+                    console.log('Book not currently in DB');
+                    const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    const data = {
+                        author: selectedBook.author,
+                        dateCreated: timestamp,
+                        downVotes: [],
+                        grBookID: selectedBook.bookId,
+                        grDescription: selectedBook.description,
+                        grImage: selectedBook.image,
+                        grPageCount: selectedBook.pageCount,
+                        grRating: selectedBook.rating,
+                        groupRatings: [{downVotes: 0, upVotes: 0, groupId: groupId}],
+                        groups: [groupId],
+                        title: selectedBook.title,
+                        upVotes: []
+                    };
+                    booksRef.add(data)
+                        .then(() => {
+                            console.log('New Book Added')
+                            navigation.goBack()
+                        })
+                        .catch((error) => {
+                            alert(error)
+                            console.log(error)
+                        });
+                }
+                else {
+                    let doc = snap.docs[0];
+                    // Make sure to get the data from the doc before getting fields
+                    console.log(doc.data())
+                }
+                //Navigate back to book list
+            })
+            .catch(err => {
+                console.log('Error getting document', err);
+            });
+    }
+
     const keyExtractor = (item, index) => index.toString()
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.listItem} onPress={() => {openBookModal(item.grBookId, item.author)}}>
+        <TouchableOpacity style={styles.listItem} onPress={() => {openBookModal(item.grBookId, item.author, item.image)}}>
             <Avatar
                 size={'medium'}
                 source={{uri: item.image}}
@@ -90,12 +138,6 @@ export default function AddBookScreen({route, navigation}) {
                     <Text>{item.title}</Text>
                     <Text style={{fontSize: 10}}>{item.author}</Text>
                 </View>
-                {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Icon name='thumbs-up' type='font-awesome' color='#333333' />
-                    <Text style={{marginRight: 15}}> - {item.upVotes}</Text>
-                    <Icon name='thumbs-down' type='font-awesome' color='#333333' />
-                    <Text> - {item.downVotes}</Text>
-                </View> */}
             </View>
         </TouchableOpacity>
     )
@@ -134,9 +176,15 @@ export default function AddBookScreen({route, navigation}) {
                                 <Text style={styles.modalBookDesc}>{selectedBook.description}</Text>
                             </View>
                         </ScrollView>
-                        <TouchableOpacity style={styles.modalBtn} onPress={() => {setModalVisible(!modalVisible);}}>
-                            <Text style={styles.entityText}>Close</Text>
-                        </TouchableOpacity>
+                        
+                        <View style={styles.groupBtns}>
+                            <TouchableOpacity style={styles.addBookBtn} onPress={() => {addBookToList()}}>
+                                <Text style={styles.entityText}>Add</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalBtn} onPress={() => {setModalVisible(!modalVisible);}}>
+                                <Text style={styles.entityText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>

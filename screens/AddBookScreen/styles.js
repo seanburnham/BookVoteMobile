@@ -63,4 +63,17 @@ export default StyleSheet.create({
         justifyContent:"center",
         margin:5,
     },
+    addBookBtn: {
+        width:"20%",
+        backgroundColor:"#32a852",
+        borderRadius:25,
+        height:35,
+        alignItems:"center",
+        justifyContent:"center",
+        margin:5,
+    },
+    groupBtns: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
 })
