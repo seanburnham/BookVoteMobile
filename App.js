@@ -131,6 +131,9 @@ export default function App() {
 //Once the isLoading is gone (logged or not logged) the app will render this stack
   return (
     <mainContext.Provider value={mainC}> 
+      <StatusBar
+        barStyle="light-content"
+      />
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Login">
             {userLogged == false ? (

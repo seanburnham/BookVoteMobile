@@ -20,3 +20,5 @@ export { default as BookListScreen } from './BookListScreen/BookListScreen'
 
 export { default as AddBookScreen } from './AddBookScreen/AddBookScreen'
 
+export { default as BookVoteScreen } from './BookVoteScreen/BookVoteScreen'
+

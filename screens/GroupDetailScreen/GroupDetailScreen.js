@@ -167,7 +167,7 @@ export default function GroupDetailScreen({ route, navigation }) {
                                 <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookList', {groupId: groupId})}>
                                     <Text style={styles.btnText}>Book List</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.joinBtn} onPress={() => console.log('Pressed Vote')}>
+                                <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookVote', {groupId: groupId})}>
                                     <Text style={styles.btnText}>Vote</Text>
                                 </TouchableOpacity>
                             </View>
