@@ -82,7 +82,7 @@ export default function BookList({route, navigation}) {
                 imageProps={{resizeMode: 'contain'}}
             />
             <View style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', width: '80%' }}>
-                <View style={{marginLeft: 5,}}>
+                <View style={{marginLeft: 5, maxWidth: '60%'}}>
                     <Text>{item.title}</Text>
                     <Text style={{fontSize: 10}}>{item.author}</Text>
                 </View>

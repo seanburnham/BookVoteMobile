@@ -114,8 +114,27 @@ export default function AddBookScreen({route, navigation}) {
                 }
                 else {
                     let doc = snap.docs[0];
-                    // Make sure to get the data from the doc before getting fields
-                    console.log(doc.data())
+                    if(doc.data().groups.includes(groupId)){
+                        Alert.alert(
+                            "Alert",
+                            "This book has already been added to this group's list.",
+                            [
+                              { text: "OK", onPress: () => setModalVisible(false) }
+                            ],
+                            { cancelable: false }
+                          );
+                    }
+                    else{
+                        const bookToUpdate = firebase.firestore().collection('books').doc(doc.id);
+                        bookToUpdate.update({
+                            'groups': firebase.firestore.FieldValue.arrayUnion(groupId),
+                            'groupRatings': firebase.firestore.FieldValue.arrayUnion({downVotes: 0, upVotes: 0, groupId: groupId}),
+                        })
+                        .then(() => {
+                            setModalVisible(false);
+                            navigation.goBack()
+                        })
+                    }
                 }
                 //Navigate back to book list
             })
