@@ -32,7 +32,8 @@ export default StyleSheet.create({
     topVotedBookTitle: {
         fontSize: 15,
         color: '#333333',
-        marginTop: 10
+        marginTop: 10,
+        textAlign: 'center'
     },
     topRateBookImage: {
         width: 100,

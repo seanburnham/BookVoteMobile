@@ -65,12 +65,15 @@ export default StyleSheet.create({
     },
     addBookBtn: {
         width:"20%",
-        backgroundColor:"#32a852",
+        backgroundColor:"blue",
         borderRadius:25,
         height:35,
         alignItems:"center",
         justifyContent:"center",
         margin:5,
+    },
+    entityText:{
+        color: 'white'
     },
     groupBtns: {
         flexDirection: 'row',

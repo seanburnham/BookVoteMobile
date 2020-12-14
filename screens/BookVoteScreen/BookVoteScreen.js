@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Keyboard, Text, TouchableOpacity, ScrollView, View, Image, Animated } from 'react-native'
+import { Keyboard, Text, TouchableOpacity, ScrollView, View, Image, SafeAreaView } from 'react-native'
+import { Card, Button, Icon } from 'react-native-elements'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import { ActivityIndicator } from 'react-native-paper';
-import Swiper from 'react-native-deck-swiper'
+// import Swiper from 'react-native-deck-swiper'
 
 
 export default function BookVoteScreen({route}) {
@@ -12,10 +13,11 @@ export default function BookVoteScreen({route}) {
     const currentUser = firebase.auth().currentUser;
     const [loading, setLoading] = useState(true);
     const [books, setBooks] = useState([]);
+    const [currentBook, setCurrentBook] = useState([]);
 
     useEffect(() => {
-        const groupsRef = firebase.firestore().collection('books')
-        const currentGroupBooks = groupsRef.where('groups', 'array-contains', groupId)
+        const booksRef = firebase.firestore().collection('books')
+        const currentGroupBooks = booksRef.where('groups', 'array-contains', groupId)
             .onSnapshot(querySnapshot => {
                 const books = [];
                 querySnapshot.forEach(documentSnapshot => {
@@ -28,12 +30,41 @@ export default function BookVoteScreen({route}) {
                     }
                 });
                 setBooks(books);
+                setCurrentBook(books[0]);
                 setLoading(false);
             });
 
       // Unsubscribe from events when no longer in use
       return () => currentGroupBooks();
     }, []);
+
+    const addUpvote = () => {
+        
+        const bookRef = firebase.firestore().collection('books').doc(currentBook.key);
+        bookRef.update({
+                'upVotes': firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                ['groupRatings.' + groupId + '.upVotes'] : firebase.firestore.FieldValue.increment(1)
+            })
+            .then(() => {
+                books.shift()
+                setCurrentBook(books[0]);
+                console.log('Upvoted');
+            })
+    }
+
+    const addDownvote = () => {
+        const bookRef = firebase.firestore().collection('books').doc(currentBook.key);
+        bookRef.update({
+                'downVotes': firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                ['groupRatings.' + groupId + '.downVotes'] : firebase.firestore.FieldValue.increment(1)
+            })
+            .then(() => {
+                books.shift()
+                setCurrentBook(books[0]);
+                console.log('Downvoted');
+            })
+    }
+
 
     if (loading) {
         return (
@@ -44,8 +75,66 @@ export default function BookVoteScreen({route}) {
     }
 
     return (
-        <View style={styles.container}>
-            <Swiper
+        <SafeAreaView style={styles.container}>
+
+            {books.length > 0 ? 
+            <View style={styles.container}>
+                <Card containerStyle={styles.card} wrapperStyle={styles.innerCard}>
+                    <Card.Title>{currentBook.title}</Card.Title>
+                    <Text style={{fontSize: 12, textAlign: 'center', marginBottom: 10}}>{currentBook.author}</Text>
+                    <Card.Divider/>
+                    <ScrollView>
+                        <View style={styles.cardView}>
+                            <Image style={styles.bookImage} source={{uri: currentBook.grImage,}}></Image>
+                            <View style={styles.bookGRDetails}>
+                                <Text style={{fontSize: 12, marginRight: 10, color: '#fb5b5a'}}>Goodreads Rating - {currentBook.grRating} / 5.0</Text>
+                                <Text style={{fontSize: 12, color: '#fb5b5a'}}>Page Count - {currentBook.grPageCount}</Text>
+                            </View>
+                            <Text style={styles.cardDesc}>{currentBook.grDescription}</Text>
+                        </View>
+                    </ScrollView>
+                </Card>
+
+                 <View  style={styles.buttonRow}>
+                    <Button
+                        onPress={addUpvote}
+                        raised
+                        buttonStyle={styles.likeBtn}
+                        containerStyle={styles.likeBtnContainer}
+                        icon={
+                            <Icon
+                                name='thumbs-up' 
+                                type='font-awesome' 
+                                color='#333333'
+                                size={40}
+                            />
+                        }
+                    />
+                    <Button
+                        onPress={addDownvote}
+                        raised
+                        buttonStyle={styles.dislikeBtn}
+                        containerStyle={styles.dislikeBtnContainer}
+                        icon={
+                            <Icon
+                                name='thumbs-down' 
+                                type='font-awesome' 
+                                color='#333333'
+                                size={40}
+                            />
+                        }
+                    />
+                </View>
+            </View>
+                
+            :
+            <View style={styles.emptyList}>
+                <Text style={{fontSize: 24, color: 'gray'}}>No More Books to Vote On</Text>
+            </View>
+            }
+
+
+            {/* <Swiper
                 cards={books}
                 renderCard={(book) => {
                     return (
@@ -67,7 +156,8 @@ export default function BookVoteScreen({route}) {
                         </View>
                     )
                 }}
-                onSwiped={(cardIndex) => {console.log(cardIndex)}}
+                onSwipedRight={(cardIndex) => addUpvote(cardIndex)}
+                onSwipedLeft={(cardIndex) => addDownvote(cardIndex)}
                 onSwipedAll={() => {console.log('onSwipedAll')}}
                 cardIndex={0}
                 stackSeparation={14}
@@ -117,7 +207,7 @@ export default function BookVoteScreen({route}) {
                 <View style={styles.topSection}>
                     <Text>{'<- '}Swipe To Vote{' ->'}</Text>
                 </View>
-            </Swiper>
-        </View>
+            </Swiper> */}
+        </SafeAreaView>
     )
 }

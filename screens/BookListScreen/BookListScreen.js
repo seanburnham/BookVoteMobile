@@ -30,12 +30,12 @@ export default function BookList({route, navigation}) {
                 />
               ), 
         });
-        const groupsRef = firebase.firestore().collection('books')
-        const currentGroupBooks = groupsRef.where('groups', 'array-contains', groupId)
+        const booksRef = firebase.firestore().collection('books')
+        const currentGroupBooks = booksRef.where('groups', 'array-contains', groupId)
             .onSnapshot(querySnapshot => {
                 const books = [];
                 querySnapshot.forEach(documentSnapshot => {
-                    const currentGroupRatings = documentSnapshot.data().groupRatings.find( ({ groupId }) => groupId === groupId );
+                    const currentGroupRatings = documentSnapshot.data().groupRatings[groupId];
                     books.push({
                         ...documentSnapshot.data(),
                         key: documentSnapshot.id,
@@ -46,7 +46,7 @@ export default function BookList({route, navigation}) {
           
                 if(books.length > 0){
                     setBooksExist(true);
-                    books.sort((a, b) => (a.upVotes > b.upVotes) ? 1 : -1);
+                    books.sort((a, b) => (a.upVotes < b.upVotes) ? 1 : -1);
                     if(books[0].upVotes > 0){
                         const topBook = books.shift();
                         setTopRatedBook(topBook);
@@ -147,29 +147,29 @@ export default function BookList({route, navigation}) {
                         ListHeaderComponent={
                             <>
                                 {Object.keys(topRatedBook).length != 0 &&
-
-                                    <View style={styles.topBookArea}>
-                                        <Text style={styles.topVotedBookLabel}>Top Rated Book</Text>
-                                        <Text style={styles.topVotedBookTitle}>{topRatedBook.title}</Text>
-                                        <Image style={styles.topRateBookImage} source={{uri: topRatedBook.grImage,}}></Image>
-                                        <View style={styles.topRatedBookDetails}>
-                                            <Text style={{fontSize: 12, marginRight: 10, color: '#fb5b5a'}}>Goodreads Rating - {topRatedBook.grRating} / 5.0</Text>
-                                            <Text style={{fontSize: 12, color: '#fb5b5a'}}>Page Count - {topRatedBook.grPageCount}</Text>
+                                    <TouchableOpacity onPress={() => {openBookModal(topRatedBook.title, topRatedBook.grDescription, topRatedBook.grRating, topRatedBook.grPageCount, topRatedBook.author)}}>
+                                        <View style={styles.topBookArea}>
+                                            <Text style={styles.topVotedBookLabel}>Top Rated Book</Text>
+                                            <Text style={styles.topVotedBookTitle}>{topRatedBook.title}</Text>
+                                            <Image style={styles.topRateBookImage} source={{uri: topRatedBook.grImage,}}></Image>
+                                            <View style={styles.topRatedBookDetails}>
+                                                <Text style={{fontSize: 12, marginRight: 10, color: '#fb5b5a'}}>Goodreads Rating - {topRatedBook.grRating} / 5.0</Text>
+                                                <Text style={{fontSize: 12, color: '#fb5b5a'}}>Page Count - {topRatedBook.grPageCount}</Text>
+                                            </View>
+                                            <View style={{
+                                                paddingVertical: 15,
+                                                paddingHorizontal: 10,
+                                                flexDirection: "row",
+                                                justifyContent: "space-between",
+                                                alignItems: "center"
+                                            }}>
+                                                <Icon name='thumbs-up' type='font-awesome' color='#333333' />
+                                                <Text style={{marginRight: 15}}> - {topRatedBook.upVotes}</Text>
+                                                <Icon name='thumbs-down' type='font-awesome' color='#333333' />
+                                                <Text> - {topRatedBook.downVotes}</Text>
+                                            </View>
                                         </View>
-                                        <View style={{
-                                            paddingVertical: 15,
-                                            paddingHorizontal: 10,
-                                            flexDirection: "row",
-                                            justifyContent: "space-between",
-                                            alignItems: "center"
-                                        }}>
-                                            <Icon name='thumbs-up' type='font-awesome' color='#333333' />
-                                            <Text style={{marginRight: 15}}> - {topRatedBook.upVotes}</Text>
-                                            <Icon name='thumbs-down' type='font-awesome' color='#333333' />
-                                            <Text> - {topRatedBook.downVotes}</Text>
-                                        </View>
-                                    </View>
-                                    
+                                    </TouchableOpacity>
                                 }
                             </>
                         }

@@ -97,7 +97,7 @@ export default function AddBookScreen({route, navigation}) {
                         grImage: selectedBook.image,
                         grPageCount: selectedBook.pageCount,
                         grRating: selectedBook.rating,
-                        groupRatings: [{downVotes: 0, upVotes: 0, groupId: groupId}],
+                        groupRatings : {[groupId]: {upVotes: 0, downVotes: 0}},
                         groups: [groupId],
                         title: selectedBook.title,
                         upVotes: []
