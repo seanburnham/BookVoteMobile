@@ -26,8 +26,6 @@ export default function GroupDetailScreen({ route, navigation }) {
                     const sortedComments = doc.data().comments.sort((a, b) => b.postDate.toDate() - a.postDate.toDate())
                     setGroupComments(sortedComments)
                 }
-                // console.log(Object.keys(group.currentBook).length)
-                console.log("Document data found!");
             } else {
                 console.log("No such document!");
                 //TODO: Send user back to group list with alert of error
