@@ -10,12 +10,6 @@ export default function LoginScreen({navigation}) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const onForgotPress = (btnName) => {
-        if(btnName == 'Forgot'){
-          console.log(btnName)
-        }
-    }
-
     return (
         <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : "height"} style={styles.container}>
             <Image style={styles.logo} source={require('../../assets/newLogo.png')} />
@@ -40,7 +34,7 @@ export default function LoginScreen({navigation}) {
                 underlineColorAndroid="transparent"
                 autoCapitalize="none"/>
             </View>
-            <TouchableOpacity onPress={() => onForgotPress('Forgot')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Forgot')}>
                 <Text style={styles.forgot}>Forgot Password?</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.loginBtn} onPress={() => handleLogin(email, password)}>

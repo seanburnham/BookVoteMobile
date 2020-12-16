@@ -11,7 +11,7 @@ import mainContext from './src/mainContext';
 import { firebase } from './src/firebase/config'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { LoginScreen, RegistrationScreen, TabNavigation } from './screens'
+import { ForgotPasswordScreen, LoginScreen, RegistrationScreen, TabNavigation } from './screens'
 
 const Stack = createStackNavigator();
 
@@ -138,6 +138,7 @@ export default function App() {
               <>
                 <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="Forgot" component={ForgotPasswordScreen} options={{ headerShown: false }} />
               </>
             ) : (
               <>
