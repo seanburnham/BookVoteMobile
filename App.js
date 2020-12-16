@@ -77,8 +77,6 @@ export default function App() {
           const uid = response.user.uid
           const data = {
               id: uid,
-              email,
-              username,
               createdAt: timestamp,
           };
           const usersRef = firebase.firestore().collection('users')
