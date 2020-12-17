@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, KeyboardAvoidingView } from 'react-native';
 import { Input, Button, Avatar } from 'react-native-elements';
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import mainContext from '../../src/mainContext'; //The context!!
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function Profile() {
 
@@ -113,81 +114,82 @@ export default function Profile() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            {/* <Text style={styles.text}>User Details</Text> */}
-            <View style={{alignItems:'center'}}>
-                <Avatar 
-                    rounded 
-                    size={'large'} 
-                    icon={{ name: 'account', type:'material-community', color:'white' }} 
-                    containerStyle={{backgroundColor: 'gray'}}
-                />
-            </View>
-            
-            <View style={styles.profileDetails}>
-                <Input
-                    placeholder='Username'
-                    label='Username'
-                    onChangeText={(text) => setUsername(text)}
-                    defaultValue={currentUser.displayName}
-                    onKeyPress={() => setDisableBtn(false)}
-                />
-                <Input
-                    defaultValue={queriedUser.firstName}
-                    label='First Name'
-                    placeholder='First Name'
-                    onChangeText={(text) => setFirstName(text)}
-                    onKeyPress={() => setDisableBtn(false)}
-                />
-                <Input
-                    defaultValue={queriedUser.lastName}
-                    label='Last Name'
-                    placeholder='Last Name'
-                    onChangeText={(text) => setLastName(text)}
-                    onKeyPress={() => setDisableBtn(false)}
-                />
-                <Input
-                    defaultValue={currentUser.email}
-                    label='Email'
-                    placeholder='Email'
-                    onChangeText={(text) => setEmail(text)}
-                    onKeyPress={() => setDisableBtn(false)}
-                />
-                <Input
-                    defaultValue={queriedUser.city}
-                    label='City'
-                    placeholder='City'
-                    onChangeText={(text) => setCity(text)}
-                    onKeyPress={() => setDisableBtn(false)}
-                />
-                <Input
-                    defaultValue={queriedUser.state}
-                    label='State'
-                    placeholder='State'
-                    onChangeText={(text) => setState(text)}
-                    onKeyPress={() => setDisableBtn(false)}
-                />
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                <Button
-                    title="Save Changes"
-                    buttonStyle={styles.editButton}
-                    containerStyle={{ marginRight: 10, marginTop: 20}}
-                    disabled={disableBtn}
-                    onPress={() => onSubmit()}
-                />
+        <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : "height"} style={styles.container}>
+            <ScrollView>
+                <View style={{alignItems:'center'}}>
+                    <Avatar 
+                        rounded 
+                        size={'large'} 
+                        icon={{ name: 'account', type:'material-community', color:'white' }} 
+                        containerStyle={{backgroundColor: 'gray'}}
+                    />
+                </View>
+                
+                <View style={styles.profileDetails}>
+                    <Text>{StatusBar.currentHeight}</Text>
+                    <Input
+                        placeholder='Username'
+                        label='Username'
+                        onChangeText={(text) => setUsername(text)}
+                        defaultValue={currentUser.displayName}
+                        onKeyPress={() => setDisableBtn(false)}
+                    />
+                    <Input
+                        defaultValue={queriedUser.firstName}
+                        label='First Name'
+                        placeholder='First Name'
+                        onChangeText={(text) => setFirstName(text)}
+                        onKeyPress={() => setDisableBtn(false)}
+                    />
+                    <Input
+                        defaultValue={queriedUser.lastName}
+                        label='Last Name'
+                        placeholder='Last Name'
+                        onChangeText={(text) => setLastName(text)}
+                        onKeyPress={() => setDisableBtn(false)}
+                    />
+                    <Input
+                        defaultValue={currentUser.email}
+                        label='Email'
+                        placeholder='Email'
+                        onChangeText={(text) => setEmail(text)}
+                        onKeyPress={() => setDisableBtn(false)}
+                    />
+                    <Input
+                        defaultValue={queriedUser.city}
+                        label='City'
+                        placeholder='City'
+                        onChangeText={(text) => setCity(text)}
+                        onKeyPress={() => setDisableBtn(false)}
+                    />
+                    <Input
+                        defaultValue={queriedUser.state}
+                        label='State'
+                        placeholder='State'
+                        onChangeText={(text) => setState(text)}
+                        onKeyPress={() => setDisableBtn(false)}
+                    />
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20}}>
+                    <Button
+                        title="Save Changes"
+                        buttonStyle={styles.editButton}
+                        containerStyle={{ marginRight: 10, marginTop: 20}}
+                        disabled={disableBtn}
+                        onPress={() => onSubmit()}
+                    />
 
-                <Button
-                    title="Sign Out"
-                    type="outline"
-                    buttonStyle={styles.signOutButton}
-                    containerStyle={{ marginLeft: 10, marginTop: 20}}
-                    titleStyle={{color:'#465881'}}
-                    onPress={() => signOutUser()}
-                />
-            </View>
-            
-        </SafeAreaView>
+                    <Button
+                        title="Sign Out"
+                        type="outline"
+                        buttonStyle={styles.signOutButton}
+                        containerStyle={{ marginLeft: 10, marginTop: 20}}
+                        titleStyle={{color:'#465881'}}
+                        onPress={() => signOutUser()}
+                    />
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
     
 }
