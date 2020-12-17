@@ -15,6 +15,8 @@ export default function GroupDetailScreen({ route, navigation }) {
     const [userComment, setUserComment] = useState('');
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
+    const [groupUsers, setGroupUsers] = useState([]);
+    const [groupCommentUsers, setGroupCommentUsers] = useState([]);
 
     useEffect(() => {
         const groupsRef = firebase.firestore().collection('groups').doc(groupId);
@@ -25,6 +27,16 @@ export default function GroupDetailScreen({ route, navigation }) {
                 if((doc.data().users.indexOf(currentUser.uid) > -1 || doc.data().isPrivate == false) && doc.data().comments != undefined){
                     const sortedComments = doc.data().comments.sort((a, b) => b.postDate.toDate() - a.postDate.toDate())
                     setGroupComments(sortedComments)
+
+                    const groupUser = []
+                    doc.data().comments.forEach(function (comment) {
+                        if(groupUser.indexOf(comment.userId) === -1){
+                            groupUser.push(comment.userId)
+                        }
+                    });
+                    setGroupUsers(groupUser)
+                    // getUsers()
+                    
                 }
             } else {
                 console.log("No such document!");
@@ -34,10 +46,30 @@ export default function GroupDetailScreen({ route, navigation }) {
               console.log("Error getting document:", error);
               //TODO: Send user back to group list with alert of error
         });
-
+        
         setTimeout(() => setLoading(false), 1000);
 
       }, []);
+
+
+    // const getUsers = () => {
+    //     console.log('here')
+    //     console.log(groupUsers)
+    //     if(groupUsers.length > 0){
+    //         const userRef = firebase.firestore().collection('users').where('id', 'in', groupUsers)
+    //         .onSnapshot(querySnapshot => {
+    //             const users = [];
+    //             querySnapshot.forEach(documentSnapshot => {
+    //                 users.push({
+    //                     id: documentSnapshot.data().id,
+    //                 });
+    //                 setGroupCommentUsers(users)
+    //                 console.log(groupCommentUsers)
+    //             });
+    //         });
+            
+    //     }
+    // }
 
     const addNewComment = () => {
         if (!userComment.trim()) {

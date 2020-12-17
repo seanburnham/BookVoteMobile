@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { View, Text, TouchableOpacity, StatusBar, KeyboardAvoidingView } from 'react-native';
-import { Input, Button, Avatar } from 'react-native-elements';
+import { Input, Button, Avatar, Accessory } from 'react-native-elements';
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import mainContext from '../../src/mainContext'; //The context!!
 import { ScrollView } from 'react-native-gesture-handler';
+import * as ImagePicker from 'expo-image-picker';
+
 
 export default function Profile() {
 
@@ -20,12 +22,14 @@ export default function Profile() {
     const [queriedUser, setQueriedUser] = useState([])
     const [userData, setUserData] = useState({})
     const [errorExists, setErrorExists] = useState(false);
+    const [userImage, setUserImage] = useState(null)
 
     useEffect(() => {
         const userRef = firebase.firestore().collection('users').doc(currentUser.uid);
         userRef.get().then(function(doc) {
             if (doc.exists) {
                 setQueriedUser(doc.data())
+                setUserImage(doc.data().imageURI)
             } else {
                 console.log("No such document!");
             }
@@ -113,16 +117,49 @@ export default function Profile() {
 
     }
 
+    const pickImage = async () => {
+
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 1,
+        });
+    
+        console.log(result);
+    
+        if (!result.cancelled) {
+            setUserImage(result.uri);
+            const usersRef = firebase.firestore().collection('users')
+            usersRef.doc(currentUser.uid).update({
+                imageURI: result.uri
+            })
+            .then(() => {
+                console.log('User image updated')
+            })
+            .catch((error) => {
+                alert(error)
+                console.log(error)
+            });
+        }
+    };
+
     return (
         <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : "height"} style={styles.container}>
             <ScrollView>
                 <View style={{alignItems:'center'}}>
                     <Avatar 
                         rounded 
-                        size={'large'} 
+                        size={'xlarge'} 
                         icon={{ name: 'account', type:'material-community', color:'white' }} 
+                        source={{
+                            uri: userImage,
+                          }}
                         containerStyle={{backgroundColor: 'gray'}}
-                    />
+                        onPress={pickImage}
+                    >
+                        <Accessory size={30}/>
+                    </Avatar>
                 </View>
                 
                 <View style={styles.profileDetails}>
