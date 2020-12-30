@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View, SafeAreaView, Modal, Alert } from 'react-native'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
-import { Divider, Avatar } from 'react-native-elements';
+import { Divider, Avatar, Icon } from 'react-native-elements';
 import { ActivityIndicator } from 'react-native-paper';
 
 export default function GroupDetailScreen({ route, navigation }) {
@@ -70,7 +70,7 @@ export default function GroupDetailScreen({ route, navigation }) {
         else{
             console.log('Joining Group ' + group.name)
             const groupRef = firebase.firestore().collection('groups').doc(groupId);
-            groupRef.update({'users': firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.uid)})
+            groupRef.update({'users': firebase.firestore.FieldValue.arrayUnion(currentUser.uid)})
             .then(() => {
                 setModalVisible(false);
                 navigation.navigate('GroupsHome')
@@ -154,6 +154,13 @@ export default function GroupDetailScreen({ route, navigation }) {
             <FlatList
                 ListHeaderComponent={
                     <>
+                        <Icon
+                            containerStyle={styles.editGear}
+                            name='gear'
+                            type='font-awesome'
+                            color='#333333'
+                            onPress={() => navigation.navigate('EditGroup', {groupId: groupId, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
+                        />
                         <View style={styles.groupDetails}>
                             <Text style={styles.groupTitle}>{group.name}</Text>
                             <Text style={styles.groupSubtitle}>{group.isPrivate == true ? 'Private Group - ' + numOfMembers + ' members' : 'Public Group - ' + numOfMembers + ' members'}</Text>

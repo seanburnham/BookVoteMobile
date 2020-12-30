@@ -8,10 +8,16 @@ export default StyleSheet.create({
         // justifyContent: 'center',
         // alignItems: 'center'
     },
+    editGear: {
+        alignItems: 'flex-end',
+        marginTop: 15,
+        marginRight: 15,
+        zIndex: 5
+    },
     groupDetails: {
         // justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 15
+        marginTop: -25
     },
     groupTitle: {
         fontSize: 30,

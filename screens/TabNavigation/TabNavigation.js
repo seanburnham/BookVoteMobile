@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react'
 import { Icon } from 'react-native-elements'
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { GroupsScreen, HomeScreen, ProfileScreen, CreateGroupScreen, JoinGroupScreen, GroupDetailScreen, BookListScreen, AddBookScreen, BookVoteScreen } from '../../screens'
+import { GroupsScreen, HomeScreen, ProfileScreen, CreateGroupScreen, JoinGroupScreen, GroupDetailScreen, BookListScreen, AddBookScreen, BookVoteScreen, EditGroupScreen } from '../../screens'
 import { createStackNavigator } from '@react-navigation/stack'
 import {decode, encode} from 'base-64'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -22,6 +22,7 @@ function GroupsHome() {
       <Stack.Screen name='BookList' component={BookListScreen} options={{ headerShown: true, title: 'Book List'}}/>
       <Stack.Screen name='AddBook' component={AddBookScreen} options={{ headerShown: true, title: 'Add Book' }}/>
       <Stack.Screen name='BookVote' component={BookVoteScreen} options={{ headerShown: true, title: 'Book Vote' }}/>
+      <Stack.Screen name='EditGroup' component={EditGroupScreen} options={{ headerShown: true, title: 'Settings' }}/>
     </Stack.Navigator>
   );
 }

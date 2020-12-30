@@ -34,6 +34,7 @@ export default function CreateGroupScreen({navigation}) {
             isPrivate: privateGroup,
             createdDate: timestamp,
             users: [user.uid],
+            admins: [user.uid],
             bookList: [],
             currentBook: {},
             createdBy: [user.uid]
