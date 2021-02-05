@@ -34,7 +34,7 @@ export default function TabNavigation() {
         initialRouteName="Home"
         activeColor="#fb5b5a"
         inactiveColor="white"
-        barStyle={{ backgroundColor: '#465881' }}
+        barStyle={{ backgroundColor: '#465881', height:70 }}
       >
         <Tab.Screen 
             name='Home' 

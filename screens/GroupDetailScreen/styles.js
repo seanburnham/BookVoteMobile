@@ -10,14 +10,15 @@ export default StyleSheet.create({
     },
     editGear: {
         alignItems: 'flex-end',
-        marginTop: 15,
+        paddingTop: 15,
+        marginBottom: -25,
         marginRight: 15,
         zIndex: 5
     },
     groupDetails: {
         // justifyContent: 'center',
         alignItems: 'center',
-        marginTop: -25
+        marginTop: 15
     },
     groupTitle: {
         fontSize: 30,

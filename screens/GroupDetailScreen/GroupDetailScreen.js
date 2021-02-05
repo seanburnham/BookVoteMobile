@@ -154,13 +154,15 @@ export default function GroupDetailScreen({ route, navigation }) {
             <FlatList
                 ListHeaderComponent={
                     <>
-                        <Icon
-                            containerStyle={styles.editGear}
-                            name='gear'
-                            type='font-awesome'
-                            color='#333333'
-                            onPress={() => navigation.navigate('EditGroup', {groupId: groupId, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
-                        />
+                        {group.users.indexOf(currentUser.uid) != -1 &&
+                            <Icon
+                                containerStyle={styles.editGear}
+                                name='gear'
+                                type='font-awesome'
+                                color='#333333'
+                                onPress={() => navigation.navigate('EditGroup', {groupId: groupId, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
+                            />
+                        }
                         <View style={styles.groupDetails}>
                             <Text style={styles.groupTitle}>{group.name}</Text>
                             <Text style={styles.groupSubtitle}>{group.isPrivate == true ? 'Private Group - ' + numOfMembers + ' members' : 'Public Group - ' + numOfMembers + ' members'}</Text>
