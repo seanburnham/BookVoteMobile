@@ -1,12 +1,35 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { Button } from 'react-native-elements';
+import { FlatList, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Button, Divider } from 'react-native-elements';
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 
 export default function EditGroupScreen({ route, navigation }) {
 
-    const { groupId, admin, userId} = route.params;
+    const { groupId, usersArray, admin, userId} = route.params;
+    const [users, setUsers] = useState([]);
+
+
+    useEffect(() => {
+        if(admin == true){
+            let itemRefs = usersArray.map(id => {
+                return firebase.firestore().collection('users').doc(id).get();
+            });
+            Promise.all(itemRefs)
+            .then(docs => {
+                let items = docs.map(doc => doc.data());
+                const users = [];
+                items.forEach(function (user) {
+                    users.push({
+                        username: user.username,
+                        //TODO: Add other data like created date
+                    })
+                });
+                setUsers(users)
+            })
+            .catch(error => console.log(error))
+        }
+      }, []);
 
     const leaveGroup = () => {
 
@@ -23,12 +46,34 @@ export default function EditGroupScreen({ route, navigation }) {
         })
     }
 
+    const keyExtractor = (item, index) => index.toString()
+
+    const itemSeparator = () => (
+        <View>
+            <Divider style={{ backgroundColor: '#b5bfd7', height: 2 }} /> 
+        </View>
+    )
+
+    const renderItem = ({ item }) => (
+        <View style={styles.item}>
+            <Text style={styles.username}>{item.username}</Text>
+        </View>
+    )
+    
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : "height"} style={styles.container}>
             { admin == true ? 
-            <View>
-                <Text style={styles.entityText}>Edit Group Screen</Text>
-            </View>
+            <FlatList
+                ListHeaderComponent={
+                    <>
+                        <Text style={styles.entityText}>Edit Group Screen</Text>
+                    </>
+                }
+                ItemSeparatorComponent={itemSeparator}
+                keyExtractor={keyExtractor}
+                data={users}
+                renderItem={renderItem}
+            />
             :
             <View>
                 <Button
@@ -40,6 +85,6 @@ export default function EditGroupScreen({ route, navigation }) {
             }
 
             
-        </View>
+        </KeyboardAvoidingView> 
     )
 }

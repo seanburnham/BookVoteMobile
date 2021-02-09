@@ -12,6 +12,7 @@ export default function GroupDetailScreen({ route, navigation }) {
     const [group, setGroup] = useState([]);
     const [groupComments, setGroupComments] = useState([]);
     const [numOfMembers, setNumOfMembers] = useState('');
+    const [arrayOfMembers, setArrayOfMembers] = useState([]);
     const [userComment, setUserComment] = useState('');
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
@@ -22,6 +23,7 @@ export default function GroupDetailScreen({ route, navigation }) {
             if (doc.exists) {
                 setGroup(doc.data())
                 setNumOfMembers(doc.data().users.length)
+                setArrayOfMembers(doc.data().users)
                 if((doc.data().users.indexOf(currentUser.uid) > -1 || doc.data().isPrivate == false) && doc.data().comments != undefined){
                     const sortedComments = doc.data().comments.sort((a, b) => b.postDate.toDate() - a.postDate.toDate())
                     setGroupComments(sortedComments)
@@ -160,7 +162,7 @@ export default function GroupDetailScreen({ route, navigation }) {
                                 name='gear'
                                 type='font-awesome'
                                 color='#333333'
-                                onPress={() => navigation.navigate('EditGroup', {groupId: groupId, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
+                                onPress={() => navigation.navigate('EditGroup', {groupId: groupId, usersArray: arrayOfMembers, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
                             />
                         }
                         <View style={styles.groupDetails}>
