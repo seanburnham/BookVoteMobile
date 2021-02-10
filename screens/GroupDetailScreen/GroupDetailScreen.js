@@ -162,7 +162,7 @@ export default function GroupDetailScreen({ route, navigation }) {
                                 name='gear'
                                 type='font-awesome'
                                 color='#333333'
-                                onPress={() => navigation.navigate('EditGroup', {groupId: groupId, usersArray: arrayOfMembers, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
+                                onPress={() => navigation.navigate('EditGroup', {group: group, usersArray: arrayOfMembers, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
                             />
                         }
                         <View style={styles.groupDetails}>

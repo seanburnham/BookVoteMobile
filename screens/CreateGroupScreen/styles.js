@@ -51,4 +51,10 @@ export default StyleSheet.create({
         borderColor: 'transparent',
         marginBottom:20,
     },
+    privateSwitch: {
+        color: '#43484d',
+        fontWeight: 'bold',
+        textAlign: 'left',
+        marginBottom: 10
+    }
 })

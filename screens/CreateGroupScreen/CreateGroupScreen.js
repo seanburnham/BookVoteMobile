@@ -10,14 +10,7 @@ export default function CreateGroupScreen({navigation}) {
     const [description, setDescription] = useState('')
     const [privateGroup, setPrivate] = useState(false)
 
-    const onCheckBoxPress = () => {
-        if(privateGroup === true){
-            setPrivate(false);
-        }
-        else{
-            setPrivate(true);
-        }
-    }
+    const toggleSwitch = () => setPrivate(previousState => !previousState);
 
     const onCreateBtnPress = () => {
 
@@ -78,14 +71,17 @@ export default function CreateGroupScreen({navigation}) {
                     autoCapitalize="none"
                 />
             </View>
-            <CheckBox
-                iconRight
-                title='Private'
-                checked={privateGroup}
-                checkedColor='#465881'
-                onPress = {() => onCheckBoxPress()}
-                containerStyle={styles.checkBoxView}
-            />
+
+            <View style={{justifyContent: 'flex-start', width: '80%', padding: 20}}>
+                <Text style={styles.privateSwitch}>Private</Text>
+                <Switch
+                    trackColor={{ false: "#767577", true: "#465881" }}
+                    thumbColor={privateGroup ? "#fb5b5a" : "#f4f3f4"}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={toggleSwitch}
+                    value={privateGroup}
+                />
+            </View>
             <TouchableOpacity style={styles.createBtn} onPress={() => onCreateBtnPress()}>
                 <Text style={styles.entityText}>Create</Text>
             </TouchableOpacity>
