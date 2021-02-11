@@ -6,7 +6,7 @@ import { firebase } from '../../src/firebase/config'
 
 export default function EditGroupScreen({ route, navigation }) {
 
-    const { group, usersArray, admin, userId} = route.params;
+    const { groupID, group, usersArray, admin, userId} = route.params;
     const [users, setUsers] = useState([]);
     const currentUser = firebase.auth().currentUser;
     const [groupName, setGroupName] = useState('');
@@ -80,6 +80,24 @@ export default function EditGroupScreen({ route, navigation }) {
 
     const onSubmit = () => {
         console.log('submit pressed')
+        console.log(groupID)
+        if(groupName.trim().length > 0){
+            const groupRef = firebase.firestore().collection('groups')
+            groupRef.doc(groupID).update({name: groupName, description: groupDescription, isPrivate: privateGroup})
+                .then(() => {
+                    setShowSaveBtn(false);
+                    console.log('Group updated')
+                    alert('Group successfully updated!')
+                })
+                .catch((error) => {
+                    alert(error)
+                    console.log(error)
+                });
+        }
+        else{
+            alert('Please fill out a Group Name so users know who you are.')
+        }
+        
     }
 
     const keyExtractor = (item, index) => index.toString()
