@@ -50,6 +50,7 @@ export default StyleSheet.create({
     },
     currentBookArea: {
         flexDirection: 'row',
+        maxWidth: '50%'
         // justifyContent: 'center',
         // marginBottom: 25,
     },
@@ -65,7 +66,8 @@ export default StyleSheet.create({
         marginBottom: 10
     },
     bookDetails: {
-        justifyContent: 'center'
+        justifyContent: 'center',
+        
     },
     commentArea: {
         flexDirection: 'row',

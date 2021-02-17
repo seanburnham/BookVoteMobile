@@ -8,8 +8,9 @@ import { ActivityIndicator } from 'react-native-paper';
 export default function GroupDetailScreen({ route, navigation }) {
 
     const currentUser = firebase.auth().currentUser;
-    const { groupId } = route.params;
+    const { groupId, newCurrentBook } = route.params;
     const [group, setGroup] = useState([]);
+    const [currentBookId, setCurrentBookId] = useState('');
     const [groupComments, setGroupComments] = useState([]);
     const [numOfMembers, setNumOfMembers] = useState('');
     const [arrayOfMembers, setArrayOfMembers] = useState([]);
@@ -18,6 +19,11 @@ export default function GroupDetailScreen({ route, navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
+
+        if(route.params?.newCurrentBook){
+            setCurrentBookId(newCurrentBook);
+        }
+
         const groupsRef = firebase.firestore().collection('groups').doc(groupId);
         groupsRef.get().then(function(doc) {
             if (doc.exists) {
@@ -28,6 +34,9 @@ export default function GroupDetailScreen({ route, navigation }) {
                     const sortedComments = doc.data().comments.sort((a, b) => b.postDate.toDate() - a.postDate.toDate())
                     setGroupComments(sortedComments)
                     
+                }
+                if(doc.data().currentBook.id != undefined){
+                    setCurrentBookId(doc.data().currentBook.id);
                 }
             } else {
                 console.log("No such document!");
@@ -40,7 +49,7 @@ export default function GroupDetailScreen({ route, navigation }) {
         
         setTimeout(() => setLoading(false), 1000);
 
-      }, []);
+      }, [route.params?.newCurrentBook]);
 
     const addNewComment = () => {
         if (!userComment.trim()) {
@@ -174,7 +183,7 @@ export default function GroupDetailScreen({ route, navigation }) {
                     
                         {group.users.indexOf(currentUser.uid) > -1 ? 
                             <View style={styles.groupBtns}>
-                                <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookList', {groupId: groupId})}>
+                                <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookList', {groupId: groupId, currentBookId: currentBookId, admin: group.admins.includes(currentUser.uid) ? true : false})}>
                                     <Text style={styles.btnText}>Book List</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookVote', {groupId: groupId})}>

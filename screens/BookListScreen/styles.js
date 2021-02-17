@@ -56,7 +56,7 @@ export default StyleSheet.create({
         borderRadius: 20,
         // padding: 35,
         width: '80%',
-        maxHeight: '50%',
+        maxHeight: '60%',
         alignItems: "center",
         shadowColor: "#000",
         shadowOffset: {
@@ -90,5 +90,9 @@ export default StyleSheet.create({
         alignItems:"center",
         justifyContent:"center",
         margin:5,
+    },
+    closeModalBtn: {
+        marginBottom: 5,
+        marginRight: 15,
     },
 })

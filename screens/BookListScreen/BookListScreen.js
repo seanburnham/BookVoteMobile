@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FlatList, Text, View, SafeAreaView, Image, TouchableOpacity, Modal } from 'react-native'
-import { Divider, Avatar, Icon } from 'react-native-elements'
+import { Divider, Avatar, Icon, Button } from 'react-native-elements'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import { ActivityIndicator } from 'react-native-paper';
@@ -9,13 +9,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 export default function BookList({route, navigation}) {
 
+    const { groupId, currentBookId, admin } = route.params;
     const [loading, setLoading] = useState(true); // Set loading to true on component mount
     const [books, setBooks] = useState([]);
     const [booksExist, setBooksExist] = useState(false);
     const [topRatedBook, setTopRatedBook] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedBook, setSelectedBook] = useState({});
-    const { groupId } = route.params;
+    const [groupCurrentBook, setGroupCurrentBook] = useState('');
 
     useEffect(() => {
         navigation.setOptions({
@@ -30,6 +31,7 @@ export default function BookList({route, navigation}) {
                 />
               ), 
         });
+        setGroupCurrentBook(currentBookId);
         const booksRef = firebase.firestore().collection('books')
         const currentGroupBooks = booksRef.where('groups', 'array-contains', groupId)
             .onSnapshot(querySnapshot => {
@@ -40,7 +42,8 @@ export default function BookList({route, navigation}) {
                         ...documentSnapshot.data(),
                         key: documentSnapshot.id,
                         upVotes: currentGroupRatings.upVotes,
-                        downVotes: currentGroupRatings.downVotes
+                        downVotes: currentGroupRatings.downVotes,
+                        lastRead: currentGroupRatings.lastReadDate
                     });
                 });
           
@@ -60,22 +63,52 @@ export default function BookList({route, navigation}) {
       return () => currentGroupBooks();
     }, []);
 
-    const openBookModal = (title, description, rating, pageCount, author) => {
+    const openBookModal = (title, description, rating, pageCount, author, key, image) => {
         const selection = {
             'title': title, 
             'description': description, 
             'rating': rating, 
             'pageCount': pageCount, 
-            'author': author
+            'author': author,
+            'key': key,
+            'image': image
         };
         setSelectedBook(selection);
         setModalVisible(true);
     }
 
+    const setCurrentBook = (bookId, author, image, title) => {
+        const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+        const currentBookRef = firebase.firestore().collection('books').doc(groupCurrentBook);
+        currentBookRef.update({
+                ['groupRatings.' + groupId + '.lastReadDate'] : timestamp
+            })
+            .then(() => {
+                console.log('Last Read Date Updated');
+                const groupRef = firebase.firestore().collection('groups').doc(groupId);
+                groupRef.update({
+                        ['currentBook.author'] : author,
+                        ['currentBook.id'] : bookId,
+                        ['currentBook.image'] : image,
+                        ['currentBook.title'] : title,
+                    })
+                    .then(() => {
+                        console.log('New Current Book Set!');
+                        setGroupCurrentBook(bookId);
+                        setModalVisible(false);
+                        navigation.navigate('GroupDetail', {
+                            newCurrentBook: bookId,
+                          });
+                    })
+            })
+
+        
+    }
+
     const keyExtractor = (item, index) => index.toString()
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.listItem} onPress={() => {openBookModal(item.title, item.grDescription, item.grRating, item.grPageCount, item.author)}}>
+        <TouchableOpacity style={styles.listItem} onPress={() => {openBookModal(item.title, item.grDescription, item.grRating, item.grPageCount, item.author, item.key, item.grImage)}}>
             <Avatar
                 size={'medium'}
                 source={{uri: item.grImage}}
@@ -85,6 +118,12 @@ export default function BookList({route, navigation}) {
                 <View style={{marginLeft: 5, maxWidth: '60%'}}>
                     <Text>{item.title}</Text>
                     <Text style={{fontSize: 10}}>{item.author}</Text>
+                    {groupCurrentBook == item.key ?
+                        <Text style={{fontSize: 10, backgroundColor: 'green', padding: 2, color: 'white'}}>Currently Reading</Text>
+                    :
+                      item.lastRead != null &&
+                        <Text style={{fontSize: 10, color: 'red', padding: 2}}>Last Read: {String(item.lastRead.toDate().toLocaleString([], {year: 'numeric', month: 'long', day: 'numeric'}))}</Text>
+                    }
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Icon name='thumbs-up' type='font-awesome' color='#333333' />
@@ -119,6 +158,16 @@ export default function BookList({route, navigation}) {
                 visible={modalVisible}
             >
                 <View style={styles.centeredView}>
+                    <View style={{width: '80%', alignItems: 'flex-end'}}>
+                        <Icon
+                            containerStyle={styles.closeModalBtn}
+                            name='times'
+                            type='font-awesome'
+                            color='#fb5b5a'
+                            size = '30'
+                            onPress={() => {setModalVisible(!modalVisible);}}
+                        />
+                    </View>
                     <View style={styles.modalView}>
                         <ScrollView>
                             <View style={styles.modalBookInfo}>
@@ -131,9 +180,20 @@ export default function BookList({route, navigation}) {
                                 <Text style={styles.modalBookDesc}>{selectedBook.description}</Text>
                             </View>
                         </ScrollView>
-                        <TouchableOpacity style={styles.modalBtn} onPress={() => {setModalVisible(!modalVisible);}}>
-                            <Text style={styles.entityText}>Close</Text>
-                        </TouchableOpacity>
+                        
+                        <View style={{marginTop: 10}}>
+                            {admin == true ?
+                                groupCurrentBook != selectedBook.key &&
+                                <Button
+                                    title="Set As Current Book"
+                                    containerStyle={{marginBottom: 10}}
+                                    buttonStyle={{backgroundColor: 'green'}}
+                                    onPress={() => {setCurrentBook(selectedBook.key, selectedBook.author, selectedBook.image, selectedBook.title);}}
+                                />
+                            :
+                                <></>
+                            }
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -147,7 +207,7 @@ export default function BookList({route, navigation}) {
                         ListHeaderComponent={
                             <>
                                 {Object.keys(topRatedBook).length != 0 &&
-                                    <TouchableOpacity onPress={() => {openBookModal(topRatedBook.title, topRatedBook.grDescription, topRatedBook.grRating, topRatedBook.grPageCount, topRatedBook.author)}}>
+                                    <TouchableOpacity onPress={() => {openBookModal(topRatedBook.title, topRatedBook.grDescription, topRatedBook.grRating, topRatedBook.grPageCount, topRatedBook.author, topRatedBook.key)}}>
                                         <View style={styles.topBookArea}>
                                             <Text style={styles.topVotedBookLabel}>Top Rated Book</Text>
                                             <Text style={styles.topVotedBookTitle}>{topRatedBook.title}</Text>
@@ -156,6 +216,12 @@ export default function BookList({route, navigation}) {
                                                 <Text style={{fontSize: 12, marginRight: 10, color: '#fb5b5a'}}>Goodreads Rating - {topRatedBook.grRating} / 5.0</Text>
                                                 <Text style={{fontSize: 12, color: '#fb5b5a'}}>Page Count - {topRatedBook.grPageCount}</Text>
                                             </View>
+                                            {currentBookId == topRatedBook.key ?
+                                                <Text style={{fontSize: 10, backgroundColor: 'green', padding: 2, color: 'white', marginTop: 10}}>Currently Reading</Text>
+                                            :
+                                            topRatedBook.lastRead != null &&
+                                                <Text style={{fontSize: 10, marginTop: 10, color: 'red', padding: 2}}>Last Read: {String(topRatedBook.lastRead.toDate().toLocaleString([], {year: 'numeric', month: 'long', day: 'numeric'}))}</Text>
+                                            }
                                             <View style={{
                                                 paddingVertical: 15,
                                                 paddingHorizontal: 10,
