@@ -9,7 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 export default function BookList({route, navigation}) {
 
-    const { groupId, currentBookId, admin } = route.params;
+    const { groupId, currentBookId, admin, groupUsers } = route.params;
     const [loading, setLoading] = useState(true); // Set loading to true on component mount
     const [books, setBooks] = useState([]);
     const [booksExist, setBooksExist] = useState(false);
@@ -26,11 +26,12 @@ export default function BookList({route, navigation}) {
                   name='add-to-list'
                   type='entypo'
                   color='#32b853'
-                  onPress={() => navigation.navigate('AddBook', {groupId: groupId})}
+                  onPress={() => navigation.navigate('AddBook', {groupId: groupId, groupUsers: groupUsers})}
                   style={{marginRight: 25}}
                 />
               ), 
         });
+
         setGroupCurrentBook(currentBookId);
         const booksRef = firebase.firestore().collection('books')
         const currentGroupBooks = booksRef.where('groups', 'array-contains', groupId)

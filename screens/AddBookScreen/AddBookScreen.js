@@ -14,7 +14,7 @@ export default function AddBookScreen({route, navigation}) {
     const [foundBooks, setFoundBooks] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedBook, setSelectedBook] = useState({});
-    const { groupId } = route.params;
+    const { groupId, groupUsers } = route.params;
 
     const findBooks = () => {
         setLoading(true)
@@ -136,7 +136,13 @@ export default function AddBookScreen({route, navigation}) {
                         })
                     }
                 }
-                //Navigate back to book list
+                //Update Group doc votesNeededFrom
+                const usersArray = groupUsers;
+                const groupRef = firebase.firestore().collection('groups').doc(groupId);
+                groupRef.update({'votesNeededFrom': usersArray})
+                .then(() => {
+                    console.log('votesNeededFrom Updated')
+                })
             })
             .catch(err => {
                 console.log('Error getting document', err);
@@ -197,10 +203,10 @@ export default function AddBookScreen({route, navigation}) {
                         </ScrollView>
                         
                         <View style={styles.groupBtns}>
-                            <TouchableOpacity style={styles.addBookBtn} onPress={() => {addBookToList()}}>
+                            <TouchableOpacity style={styles.addBookBtn} onPress={() => addBookToList()}>
                                 <Text style={styles.entityText}>Add</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalBtn} onPress={() => {setModalVisible(!modalVisible);}}>
+                            <TouchableOpacity style={styles.modalBtn} onPress={() => setModalVisible(!modalVisible)}>
                                 <Text style={styles.entityText}>Close</Text>
                             </TouchableOpacity>
                         </View>

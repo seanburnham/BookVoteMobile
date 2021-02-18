@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View, SafeAreaView, Modal, Alert } from 'react-native'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
-import { Divider, Avatar, Icon } from 'react-native-elements';
+import { Divider, Avatar, Icon, Badge } from 'react-native-elements';
 import { ActivityIndicator } from 'react-native-paper';
 
 export default function GroupDetailScreen({ route, navigation }) {
 
-    const currentUser = firebase.auth().currentUser;
-    const { groupId, newCurrentBook } = route.params;
+    // const currentUser = firebase.auth().currentUser;
+    const { groupId, newCurrentBook, currentUserRecord } = route.params;
     const [group, setGroup] = useState([]);
     const [currentBookId, setCurrentBookId] = useState('');
     const [groupComments, setGroupComments] = useState([]);
+    const [votesNeeded, setVotesNeeded] = useState(false);
     const [numOfMembers, setNumOfMembers] = useState('');
     const [arrayOfMembers, setArrayOfMembers] = useState([]);
     const [userComment, setUserComment] = useState('');
@@ -30,13 +31,22 @@ export default function GroupDetailScreen({ route, navigation }) {
                 setGroup(doc.data())
                 setNumOfMembers(doc.data().users.length)
                 setArrayOfMembers(doc.data().users)
-                if((doc.data().users.indexOf(currentUser.uid) > -1 || doc.data().isPrivate == false) && doc.data().comments != undefined){
+                if((doc.data().users.indexOf(currentUserRecord.id) > -1 || doc.data().isPrivate == false) && doc.data().comments != undefined){
                     const sortedComments = doc.data().comments.sort((a, b) => b.postDate.toDate() - a.postDate.toDate())
                     setGroupComments(sortedComments)
                     
                 }
                 if(doc.data().currentBook.id != undefined){
                     setCurrentBookId(doc.data().currentBook.id);
+                }
+                if(doc.data().votesNeededFrom != undefined && doc.data().votesNeededFrom.includes(currentUserRecord.id)){
+                    setVotesNeeded(true);
+                }
+                if(doc.data().unreadUsers != undefined && doc.data().unreadUsers.includes(currentUserRecord.id)){
+                    groupsRef.update({unreadUsers: firebase.firestore.FieldValue.arrayRemove(currentUserRecord.id)})
+                    .then(() => {
+                        console.log('unreadUsers Updated')
+                    })
                 }
             } else {
                 console.log("No such document!");
@@ -57,12 +67,13 @@ export default function GroupDetailScreen({ route, navigation }) {
             return;
         }
         const timestamp = firebase.firestore.Timestamp.fromDate(new Date());
+        const unreadUsers = arrayOfMembers.filter(user => user != currentUserRecord.id);
         const groupRef = firebase.firestore().collection('groups').doc(groupId);
-            groupRef.update({'comments': firebase.firestore.FieldValue
-            .arrayUnion({'userId': currentUser.uid, 'userName': currentUser.displayName, 'body': userComment, 'postDate': timestamp})})
+            groupRef.update({'unreadUsers': unreadUsers,'comments': firebase.firestore.FieldValue
+            .arrayUnion({'userId': currentUserRecord.id, 'userName': currentUserRecord.username, 'body': userComment, 'postDate': timestamp})})
             .then(() => {
                 console.log('New Comment Added')
-                groupComments.unshift({'userId': currentUser.uid, 'userName': currentUser.displayName, 'body': userComment, 'postDate': timestamp});
+                groupComments.unshift({'userId': currentUserRecord.id, 'userName': currentUserRecord.username, 'body': userComment, 'postDate': timestamp});
                 setUserComment('')
             })
     }
@@ -81,7 +92,7 @@ export default function GroupDetailScreen({ route, navigation }) {
         else{
             console.log('Joining Group ' + group.name)
             const groupRef = firebase.firestore().collection('groups').doc(groupId);
-            groupRef.update({'users': firebase.firestore.FieldValue.arrayUnion(currentUser.uid)})
+            groupRef.update({'users': firebase.firestore.FieldValue.arrayUnion(currentUserRecord.id)})
             .then(() => {
                 setModalVisible(false);
                 navigation.navigate('GroupsHome')
@@ -89,6 +100,15 @@ export default function GroupDetailScreen({ route, navigation }) {
         }
     }
 
+    const goToVote = () => {
+        var updateVotesNeededList = false
+        if(votesNeeded == true){
+            setVotesNeeded(false);
+            updateVotesNeededList = true;
+        }
+       
+        navigation.navigate('BookVote', {groupId: groupId, currentUserRecord: currentUserRecord, updateVotesNeededList: updateVotesNeededList});
+    }
 
     if (loading) {
         return (
@@ -165,13 +185,13 @@ export default function GroupDetailScreen({ route, navigation }) {
             <FlatList
                 ListHeaderComponent={
                     <>
-                        {group.users.indexOf(currentUser.uid) != -1 &&
+                        {group.users.indexOf(currentUserRecord.id) != -1 &&
                             <Icon
                                 containerStyle={styles.editGear}
                                 name='gear'
                                 type='font-awesome'
                                 color='#333333'
-                                onPress={() => navigation.navigate('EditGroup', {groupID: groupId, group: group, usersArray: arrayOfMembers, userId: currentUser.uid, admin: group.admins.includes(currentUser.uid) ? true : false})}
+                                onPress={() => navigation.navigate('EditGroup', {groupID: groupId, group: group, usersArray: arrayOfMembers, userId: currentUserRecord.id, admin: group.admins.includes(currentUserRecord.id) ? true : false})}
                             />
                         }
                         <View style={styles.groupDetails}>
@@ -181,12 +201,15 @@ export default function GroupDetailScreen({ route, navigation }) {
                             <Text style={styles.groupDescription}>{group.description}</Text>
                         </View>
                     
-                        {group.users.indexOf(currentUser.uid) > -1 ? 
+                        {group.users.indexOf(currentUserRecord.id) > -1 ? 
                             <View style={styles.groupBtns}>
-                                <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookList', {groupId: groupId, currentBookId: currentBookId, admin: group.admins.includes(currentUser.uid) ? true : false})}>
+                                <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookList', {groupId: groupId, currentBookId: currentBookId, admin: group.admins.includes(currentUserRecord.id) ? true : false, groupUsers: arrayOfMembers})}>
                                     <Text style={styles.btnText}>Book List</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.joinBtn} onPress={() => navigation.navigate('BookVote', {groupId: groupId})}>
+                                <TouchableOpacity style={styles.joinBtn} onPress={() => goToVote()}>
+                                    {votesNeeded == true &&
+                                        <Badge value="!" status="success" containerStyle={{ position: 'absolute', top: -6, right: -5 }} />
+                                    }
                                     <Text style={styles.btnText}>Vote</Text>
                                 </TouchableOpacity>
                             </View>
@@ -224,7 +247,7 @@ export default function GroupDetailScreen({ route, navigation }) {
                             </View>
                         }
 
-                        {group.users.indexOf(currentUser.uid) > -1 &&
+                        {group.users.indexOf(currentUserRecord.id) > -1 &&
                             <View>
                                 <View style={styles.commentArea}>
                                     {/* <Avatar

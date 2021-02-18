@@ -65,7 +65,7 @@ export default StyleSheet.create({
     },
     addBookBtn: {
         width:"20%",
-        backgroundColor:"blue",
+        backgroundColor:"#465881",
         borderRadius:25,
         height:35,
         alignItems:"center",

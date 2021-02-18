@@ -9,20 +9,30 @@ import { ActivityIndicator } from 'react-native-paper';
 
 export default function BookVoteScreen({route}) {
 
-    const { groupId } = route.params;
-    const currentUser = firebase.auth().currentUser;
+    const { groupId, currentUserRecord, updateVotesNeededList } = route.params;
+    // const currentUser = firebase.auth().currentUser;
     const [loading, setLoading] = useState(true);
     const [books, setBooks] = useState([]);
     const [currentBook, setCurrentBook] = useState([]);
 
     useEffect(() => {
+
+        if(updateVotesNeededList == true){
+            const groupRef = firebase.firestore().collection('groups').doc(groupId);
+            groupRef.update({votesNeededFrom: firebase.firestore.FieldValue.arrayRemove(currentUserRecord.id)})
+            .then(() => {
+                console.log('votesNeededFrom Updated')
+            })
+        }
+        
+
         const booksRef = firebase.firestore().collection('books')
         const currentGroupBooks = booksRef.where('groups', 'array-contains', groupId)
             .onSnapshot(querySnapshot => {
                 const books = [];
                 querySnapshot.forEach(documentSnapshot => {
                     // const currentGroupRatings = documentSnapshot.data().groupRatings.find( ({ groupId }) => groupId === groupId );
-                    if(!documentSnapshot.data().upVotes.includes(currentUser.uid) && !documentSnapshot.data().downVotes.includes(currentUser.uid)){
+                    if(!documentSnapshot.data().upVotes.includes(currentUserRecord.id) && !documentSnapshot.data().downVotes.includes(currentUserRecord.id)){
                         books.push({
                             ...documentSnapshot.data(),
                             key: documentSnapshot.id
@@ -42,7 +52,7 @@ export default function BookVoteScreen({route}) {
         
         const bookRef = firebase.firestore().collection('books').doc(currentBook.key);
         bookRef.update({
-                'upVotes': firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                'upVotes': firebase.firestore.FieldValue.arrayUnion(currentUserRecord.id),
                 ['groupRatings.' + groupId + '.upVotes'] : firebase.firestore.FieldValue.increment(1)
             })
             .then(() => {
@@ -55,7 +65,7 @@ export default function BookVoteScreen({route}) {
     const addDownvote = () => {
         const bookRef = firebase.firestore().collection('books').doc(currentBook.key);
         bookRef.update({
-                'downVotes': firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                'downVotes': firebase.firestore.FieldValue.arrayUnion(currentUserRecord.id),
                 ['groupRatings.' + groupId + '.downVotes'] : firebase.firestore.FieldValue.increment(1)
             })
             .then(() => {

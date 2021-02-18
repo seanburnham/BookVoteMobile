@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FlatList, Keyboard, Text, TextInput, TouchableOpacity, View, SafeAreaView } from 'react-native'
-import { ListItem, Avatar, Badge } from 'react-native-elements'
+import { ListItem, Avatar, Badge, Icon } from 'react-native-elements'
 import styles from './styles';
 import { firebase } from '../../src/firebase/config'
 import { ActivityIndicator } from 'react-native-paper';
@@ -8,18 +8,22 @@ import { ActivityIndicator } from 'react-native-paper';
 
 export default function GroupsScreen({navigation}) {
 
-    const goToSelectedGroup = (id) => {
-      navigation.navigate('GroupDetail', {
-        groupId: id,
-      });
-    }
-
     const [loading, setLoading] = useState(true); // Set loading to true on component mount
     const [groups, setGroups] = useState([]); // Initial empty array of groups
+    const [currentUserRecord, setCurrentUserRecord] = useState({});
 
     useEffect(() => {
       const user = firebase.auth().currentUser;
-      
+
+      const userRef = firebase.firestore().collection('users').doc(user.uid);
+      userRef.get().then(function(doc) {
+        if (doc.exists) {
+          setCurrentUserRecord(doc.data());
+        }
+      }).catch(function(error) {
+        console.log("Error getting user:", error);
+      });
+
       const groupsRef = firebase.firestore().collection('groups')
       const currentUsersGroups = groupsRef.where('users', 'array-contains', user.uid)
         .onSnapshot(querySnapshot => {
@@ -28,7 +32,9 @@ export default function GroupsScreen({navigation}) {
             groups.push({
               ...documentSnapshot.data(),
               key: documentSnapshot.id,
-              groupSize: documentSnapshot.data().users.length
+              groupSize: documentSnapshot.data().users.length,
+              unreadUsers: documentSnapshot.data().unreadUsers != undefined ? documentSnapshot.data().unreadUsers.includes(user.uid) : false,
+              votesNeeded: documentSnapshot.data().votesNeededFrom != undefined ? documentSnapshot.data().votesNeededFrom.includes(user.uid) : false
             });
           });
     
@@ -40,13 +46,40 @@ export default function GroupsScreen({navigation}) {
       return () => currentUsersGroups();
     }, []);
 
+    const goToSelectedGroup = (id) => {
+      navigation.navigate('GroupDetail', {
+        groupId: id,
+        currentUserRecord: currentUserRecord,
+      });
+    }
+
     const keyExtractor = (item, index) => index.toString()
 
     const renderItem = ({ item }) => (
         <ListItem bottomDivider onPress={() => goToSelectedGroup(item.key)}>
             <Avatar rounded icon={{name: 'account-group', type: 'material-community'}} source={require('../../assets/newLogo.png')} />
             <ListItem.Content>
-                <ListItem.Title>{item.name}</ListItem.Title>
+                <ListItem.Title>
+                  {item.name}
+                  {item.unreadUsers == true ?
+                    <Icon
+                        containerStyle={{ marginLeft: 10}}
+                        name='circle'
+                        type='font-awesome'
+                        color='#fb5b5a'
+                        size = '20'
+                    />
+                    :
+                    item.votesNeeded == true &&
+                    <Icon
+                        containerStyle={{ marginLeft: 10}}
+                        name='circle'
+                        type='font-awesome'
+                        color='#fb5b5a'
+                        size = '20'
+                    />
+                  }
+                </ListItem.Title>
                 <ListItem.Subtitle>
                   {item.groupSize} {item.groupSize > 1 ? 'members' : 'member'}
                 </ListItem.Subtitle>
